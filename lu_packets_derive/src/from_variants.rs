@@ -30,7 +30,7 @@ pub fn derive(input: proc_macro::TokenStream, opt_dest: Option<&Ident>) -> proc_
 			Fields::Unnamed(fields) => fields,
 		};
 
-		assert!(!(fields.unnamed.len() != 1), "use exactly one tuple argument");
+		assert!((fields.unnamed.len() == 1), "use exactly one tuple argument");
 		let first = fields.unnamed.first().unwrap();
 		let variant_ty = &first.ty;
 
