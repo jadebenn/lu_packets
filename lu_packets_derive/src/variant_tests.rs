@@ -24,16 +24,17 @@ pub fn derive(input: proc_macro::TokenStream, reader_code: TokenStream, writer_c
 			}
 		}
 		Data::Union(_) => unimplemented!(),
-	};
+	}
 
-	let mod_name = Ident::new(&format!("_{}", name), Span::call_site());
+	let mod_name = Ident::new(&format!("_{name}"), Span::call_site());
 
 	(quote! {
 		#[cfg(test)]
 		mod #mod_name {
 			#(#tests)*
 		}
-	}).into()
+	})
+	.into()
 }
 
 fn get_test_params(attrs: &Vec<Attribute>) -> Option<Punctuated<NestedMeta, Comma>> {
@@ -55,10 +56,10 @@ fn get_test_params(attrs: &Vec<Attribute>) -> Option<Punctuated<NestedMeta, Comm
 }
 
 fn gen_test_case(type_name: &Ident, test_params: &Option<Punctuated<NestedMeta, Comma>>, test_name: &Ident, reader_code: &TokenStream, writer_code: &TokenStream) -> TokenStream {
-	let bin_path = format!("tests/{}.bin", test_name);
-	let rs_path = format!("tests/{}.rs", test_name);
+	let bin_path = format!("tests/{test_name}.bin");
+	let rs_path = format!("tests/{test_name}.rs");
 
-	let test_name = Ident::new(&format!("_{}", test_name), Span::call_site());
+	let test_name = Ident::new(&format!("_{test_name}"), Span::call_site());
 
 	quote! {
 		#[test]

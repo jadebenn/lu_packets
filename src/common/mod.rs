@@ -19,15 +19,24 @@ pub use self::str::*;
 #[derive(Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct LVec<L, T>(Vec<T>, PhantomData<L>);
 
+impl<L, T> Default for LVec<L, T> {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl<L, T> LVec<L, T> {
+	#[must_use]
 	pub fn new() -> Self {
 		Self(Vec::new(), PhantomData)
 	}
 
+	#[must_use]
 	pub fn with_capacity(capacity: usize) -> Self {
 		Self(Vec::with_capacity(capacity), PhantomData)
 	}
 
+	#[must_use]
 	pub fn inner(&self) -> &Vec<T> {
 		&self.0
 	}
@@ -37,10 +46,7 @@ impl<L, T> LVec<L, T> {
 		L: TryInto<usize>,
 		T: Deserialize<LE, R>,
 	{
-		let len = match len.try_into() {
-			Ok(x) => x,
-			_ => panic!(),
-		};
+		let len = if let Ok(x) = len.try_into() { x } else { panic!() };
 		let mut vec = Vec::<T>::with_capacity(len);
 		for _ in 0..len {
 			vec.push(LERead::read(reader)?);
@@ -53,10 +59,7 @@ impl<L, T> LVec<L, T> {
 		L: TryFrom<usize> + Serialize<LE, W>,
 	{
 		let len = self.0.len();
-		let l_len = match L::try_from(len) {
-			Ok(x) => x,
-			_ => panic!(),
-		};
+		let l_len = if let Ok(x) = L::try_from(len) { x } else { panic!() };
 		writer.write(l_len)
 	}
 
@@ -88,7 +91,7 @@ where
 	}
 }
 
-impl<'a, L, T, W: Write> Serialize<LE, W> for &'a LVec<L, T>
+impl<L, T, W: Write> Serialize<LE, W> for &LVec<L, T>
 where
 	L: TryFrom<usize> + Serialize<LE, W>,
 	for<'b> &'b T: Serialize<LE, W>,

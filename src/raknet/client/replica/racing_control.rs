@@ -84,7 +84,7 @@ impl<R: Read> Deserialize<LE, BEBitReader<R>> for RacingControlConstruction {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, BEBitWriter<W>> for &'a RacingControlConstruction {
+impl<W: Write> Serialize<LE, BEBitWriter<W>> for &RacingControlConstruction {
 	fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
 		crate::raknet::client::replica::ReplicaS::serialize(&self.activity_user_infos, writer)?;
 		crate::raknet::client::replica::ReplicaS::serialize(&self.expected_player_count, writer)?;

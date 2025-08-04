@@ -86,7 +86,7 @@ pub enum LoginResponse {
 		cdn_ticket: LuString37,
 		/// Language of the server.
 		language: Language,
-		/// Used for the cdclient SubscriptionPricing table.
+		/// Used for the cdclient `SubscriptionPricing` table.
 		country_code: LuString3,
 		/// Whether the account is connecting as a paid account for the first time.
 		just_upgraded_from_ftp: bool,
@@ -128,7 +128,7 @@ where
 	&'a LuVarWString<u16>: Serialize<LE, W>,
 {
 	fn serialize(self, writer: &mut W) -> Res<()> {
-		let disc = unsafe { *(self as *const LoginResponse as *const u8) };
+		let disc = unsafe { *std::ptr::from_ref::<LoginResponse>(self).cast::<u8>() };
 		writer.write(disc)?;
 		match self {
 			LoginResponse::Ok { events, version, session_key, redirect_address, chat_server_address, cdn_key, cdn_ticket, language, country_code, just_upgraded_from_ftp, is_ftp, time_remaining_in_ftp, stamps } => {

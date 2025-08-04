@@ -10,14 +10,14 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 	match &input.data {
 		Data::Struct(data) => {
 			deser_code = gen_deser_code_struct(&data.fields);
-			ser_code = gen_ser_code_struct(&data.fields, &name);
-		},
+			ser_code = gen_ser_code_struct(&data.fields, name);
+		}
 		Data::Enum(data) => {
 			let ty = get_enum_type(&input);
 			let pre_disc_padding = get_pre_disc_padding(&input);
 			let post_disc_padding = get_post_disc_padding(&input);
-			deser_code = gen_deser_code_enum(data, &name, &ty, &pre_disc_padding, &post_disc_padding);
-			ser_code = gen_ser_code_enum(data, &name, &ty, &pre_disc_padding, &post_disc_padding, &input.generics);
+			deser_code = gen_deser_code_enum(data, name, &ty, &pre_disc_padding, &post_disc_padding);
+			ser_code = gen_ser_code_enum(data, name, &ty, &pre_disc_padding, &post_disc_padding, &input.generics);
 		}
 		Data::Union(_) => unimplemented!(),
 	}
@@ -53,7 +53,8 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 				Ok(())
 			}
 		}
-	}).into()
+	})
+	.into()
 }
 
 fn gen_deser_code_fields(fields: &Fields) -> TokenStream {
@@ -84,7 +85,7 @@ fn gen_deser_code_fields(fields: &Fields) -> TokenStream {
 			quote! { ( #(#deser)* ) }
 		}
 		Fields::Unit => {
-			quote! { }
+			quote! {}
 		}
 	}
 }
@@ -129,7 +130,7 @@ fn gen_read_padding(padding: &Option<LitInt>) -> TokenStream {
 			let mut padding = [0; #x];
 			::std::io::Read::read_exact(reader, &mut padding)?;
 		},
-		None => quote! { },
+		None => quote! {},
 	}
 }
 
@@ -209,7 +210,7 @@ fn gen_write_padding(padding: &Option<LitInt>) -> TokenStream {
 			let mut padding = [0; #x];
 			::std::io::Write::write_all(writer, &padding)?;
 		},
-		None => quote! { },
+		None => quote! {},
 	}
 }
 
@@ -226,9 +227,7 @@ fn get_enum_type(input: &DeriveInput) -> Ident {
 			Meta::List(x) => x,
 			_ => continue,
 		};
-		if list.nested.is_empty() {
-			panic!("encountered repr attribute with no arguments");
-		}
+		assert!(!list.nested.is_empty(), "encountered repr attribute with no arguments");
 		for nested_meta in list.nested {
 			let meta = match nested_meta {
 				NestedMeta::Meta(x) => x,
@@ -253,16 +252,16 @@ fn get_padding(attrs: &Vec<Attribute>, attr_name: &str) -> Option<LitInt> {
 			continue;
 		}
 		let meta = match attr.parse_meta() {
-			Err(_) => panic!("encountered unparseable {} attribute", attr_name),
+			Err(_) => panic!("encountered unparseable {attr_name} attribute"),
 			Ok(x) => x,
 		};
 		let lit = match meta {
 			Meta::NameValue(x) => x.lit,
-			_ => panic!("{} needs to be name=value", attr_name),
+			_ => panic!("{attr_name} needs to be name=value"),
 		};
 		let int_lit = match lit {
 			Lit::Int(x) => x,
-			_ => panic!("{} needs to be an integer", attr_name),
+			_ => panic!("{attr_name} needs to be an integer"),
 		};
 		return Some(int_lit);
 	}

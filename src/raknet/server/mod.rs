@@ -39,7 +39,7 @@ impl<R: Read> Deserialize<LE, R> for ConnectionRequest {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a ConnectionRequest {
+impl<W: Write> Serialize<LE, W> for &ConnectionRequest {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		writer.write_all(&self.password)?;
 		Ok(())

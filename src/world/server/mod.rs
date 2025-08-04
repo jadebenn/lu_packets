@@ -219,7 +219,7 @@ where
 	}
 }
 
-impl<'a, W: Write + LEWrite> Serialize<LE, W> for &'a GeneralChatMessage {
+impl<W: Write + LEWrite> Serialize<LE, W> for &GeneralChatMessage {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		LEWrite::write(writer, &self.chat_channel)?;
 		LEWrite::write(writer, self.source_id)?;
@@ -266,7 +266,7 @@ impl<R: Read> Deserialize<LE, R> for PositionUpdate {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a PositionUpdate {
+impl<W: Write> Serialize<LE, W> for &PositionUpdate {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		let mut writer = BEBitWriter::new(writer);
 		LEWrite::write(&mut writer, &self.frame_stats)

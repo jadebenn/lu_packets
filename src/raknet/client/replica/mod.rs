@@ -72,7 +72,7 @@ impl<R: Read> ReplicaD<R> for bool {
 	}
 }
 
-impl<'a, W: Write> ReplicaS<W> for &'a bool {
+impl<W: Write> ReplicaS<W> for &bool {
 	fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
 		writer.write_bit(*self)
 	}
@@ -81,7 +81,7 @@ impl<'a, W: Write> ReplicaS<W> for &'a bool {
 impl<R: Read, T: ReplicaD<R> + Deserialize<LE, BEBitReader<R>>> ReplicaD<R> for Option<T> {
 	fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self> {
 		let bit = reader.read_bit()?;
-		Ok(if !bit { None } else { Some(ReplicaD::deserialize(reader)?) })
+		Ok(if bit { Some(ReplicaD::deserialize(reader)?) } else { None })
 	}
 }
 
@@ -154,7 +154,7 @@ pub struct ReplicaConstruction {
 impl PartialEq<ReplicaConstruction> for ReplicaConstruction {
 	fn eq(&self, rhs: &ReplicaConstruction) -> bool {
 		// hacky but i don't know a better way
-		format!("{:?}", self) == format!("{:?}", rhs)
+		format!("{self:?}") == format!("{rhs:?}")
 	}
 }
 
@@ -163,7 +163,7 @@ impl<R: Read + ReplicaContext> Deserialize<LE, R> for ReplicaConstruction {
 	fn deserialize(reader: &mut R) -> Res<Self> {
 		let mut bit_reader = BEBitReader::new(reader);
 		let bit = bit_reader.read_bit()?;
-		assert_eq!(bit, true);
+		assert!(bit);
 		let network_id = LERead::read(&mut bit_reader)?;
 		let object_id  = LERead::read(&mut bit_reader)?;
 		let lot        = LERead::read(&mut bit_reader)?;
@@ -201,7 +201,7 @@ impl<R: Read + ReplicaContext> Deserialize<LE, R> for ReplicaConstruction {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a ReplicaConstruction {
+impl<W: Write> Serialize<LE, W> for &ReplicaConstruction {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		let mut bit_writer = BEBitWriter::new(vec![]);
 		bit_writer.write_bit(true)?;
@@ -238,7 +238,7 @@ pub struct ReplicaSerialization {
 impl PartialEq<ReplicaSerialization> for ReplicaSerialization {
 	fn eq(&self, rhs: &ReplicaSerialization) -> bool {
 		// hacky but i don't know a better way
-		format!("{:?}", self) == format!("{:?}", rhs)
+		format!("{self:?}") == format!("{rhs:?}")
 	}
 }
 
@@ -257,7 +257,7 @@ impl<R: Read + ReplicaContext> Deserialize<LE, R> for ReplicaSerialization {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a ReplicaSerialization {
+impl<W: Write> Serialize<LE, W> for &ReplicaSerialization {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		LEWrite::write(writer, self.network_id)?;
 		let mut bit_writer = BEBitWriter::new(vec![]);

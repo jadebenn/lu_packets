@@ -83,7 +83,7 @@ impl ZipContext<'_> {
 					}
 				}
 			}
-			if comps.iter().position(|&x| x == 1 || x == 3).is_none() {
+			if !comps.iter().any(|&x| x == 1 || x == 3) {
 				comps.push(3);
 			}
 		}

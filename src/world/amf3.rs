@@ -48,11 +48,7 @@ impl TryFrom<usize> for U29 {
 	type Error = U29Error;
 
 	fn try_from(value: usize) -> Result<Self, Self::Error> {
-		if value >= 1 << 29 {
-			Err(U29Error)
-		} else {
-			Ok(Self(value as u32))
-		}
+		if value >= 1 << 29 { Err(U29Error) } else { Ok(Self(value as u32)) }
 	}
 }
 
@@ -61,20 +57,20 @@ impl<R: Read> Deserialize<LE, R> for U29 {
 		let mut value = 0;
 		for _ in 0..3 {
 			let byte: u8 = LERead::read(reader)?;
-			let byte = byte as u32;
+			let byte = u32::from(byte);
 			value = (value << 7) | (byte & 0x7f);
 			if byte & 0x80 == 0 {
 				return Ok(Self(value));
 			}
 		}
 		let byte: u8 = LERead::read(reader)?;
-		let byte = byte as u32;
+		let byte = u32::from(byte);
 		value = (value << 8) | byte;
 		Ok(Self(value))
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a U29 {
+impl<W: Write> Serialize<LE, W> for &U29 {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		let v = self.0;
 		if v <= 0x7f {
@@ -121,11 +117,7 @@ impl TryFrom<&str> for Amf3String {
 	type Error = U29Error;
 
 	fn try_from(string: &str) -> Result<Self, Self::Error> {
-		if string.len() & (1 << 29) != 0 {
-			Err(U29Error)
-		} else {
-			Ok(Self(string.into()))
-		}
+		if string.len() & (1 << 29) != 0 { Err(U29Error) } else { Ok(Self(string.into())) }
 	}
 }
 
@@ -134,13 +126,7 @@ impl<R: Read> Deserialize<LE, Amf3Reader<'_, R>> for Amf3String {
 		let value_and_is_inline: U29 = LERead::read(reader)?;
 		let is_inline = value_and_is_inline.0 & 0x01 == 1;
 		let value = value_and_is_inline.0 >> 1;
-		let string = if !is_inline {
-			let index = value;
-			match reader.string_ref_table.get(index as usize) {
-				Some(x) => x.0.clone(),
-				None => return Err(Error::new(InvalidData, "invalid reference index")),
-			}
-		} else {
+		let string = if is_inline {
 			let length = value;
 
 			let mut vec = vec![0u8; length as usize];
@@ -150,33 +136,36 @@ impl<R: Read> Deserialize<LE, Amf3Reader<'_, R>> for Amf3String {
 				Ok(x) => x,
 				Err(_) => return Err(Error::new(InvalidData, "string is not valid utf8")),
 			};
-			if string != "" {
+			if !string.is_empty() {
 				reader.string_ref_table.push(Self(string.clone()));
 			}
 			string
+		} else {
+			let index = value;
+			match reader.string_ref_table.get(index as usize) {
+				Some(x) => x.0.clone(),
+				None => return Err(Error::new(InvalidData, "invalid reference index")),
+			}
 		};
 
 		Ok(Self(string))
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, Amf3Writer<'_, W>> for &'a Amf3String {
+impl<W: Write> Serialize<LE, Amf3Writer<'_, W>> for &Amf3String {
 	fn serialize(self, writer: &mut Amf3Writer<'_, W>) -> Res<()> {
-		if self.0 == "" {
+		if self.0.is_empty() {
 			let length_and_is_inline = U29(1);
 			return LEWrite::write(writer, &length_and_is_inline);
 		}
-		match writer.string_ref_table.iter().position(|x| x == self) {
-			Some(index) => {
-				let index_and_is_inline = U29((index as u32) << 1);
-				LEWrite::write(writer, &index_and_is_inline)
-			}
-			None => {
-				let length_and_is_inline = U29((self.0.len() as u32) << 1 | 1);
-				LEWrite::write(writer, &length_and_is_inline)?;
-				writer.string_ref_table.push(Amf3String(self.0.clone()));
-				Write::write_all(writer, self.0.as_bytes())
-			}
+		if let Some(index) = writer.string_ref_table.iter().position(|x| x == self) {
+			let index_and_is_inline = U29((index as u32) << 1);
+			LEWrite::write(writer, &index_and_is_inline)
+		} else {
+			let length_and_is_inline = U29((self.0.len() as u32) << 1 | 1);
+			LEWrite::write(writer, &length_and_is_inline)?;
+			writer.string_ref_table.push(Amf3String(self.0.clone()));
+			Write::write_all(writer, self.0.as_bytes())
 		}
 	}
 }
@@ -192,7 +181,14 @@ pub struct Amf3Array {
 	pub vec: Vec<Amf3>,
 }
 
+impl Default for Amf3Array {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl Amf3Array {
+	#[must_use]
 	pub fn new() -> Self {
 		Self { map: HashMap::new(), vec: vec![] }
 	}
@@ -257,7 +253,7 @@ impl<R: Read> Deserialize<LE, Amf3Reader<'_, R>> for Amf3Array {
 		let mut map = HashMap::new();
 		loop {
 			let key: Amf3String = LERead::read(reader)?;
-			if key.0 == "" {
+			if key.0.is_empty() {
 				break;
 			}
 			let value = deser_amf3(reader)?;
@@ -273,7 +269,7 @@ impl<R: Read> Deserialize<LE, Amf3Reader<'_, R>> for Amf3Array {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, Amf3Writer<'_, W>> for &'a Amf3Array {
+impl<W: Write> Serialize<LE, Amf3Writer<'_, W>> for &Amf3Array {
 	fn serialize(self, writer: &mut Amf3Writer<'_, W>) -> Res<()> {
 		let length_and_is_inline = U29((self.vec.len() as u32) << 1 | 1);
 		LEWrite::write(writer, &length_and_is_inline)?;
@@ -289,7 +285,7 @@ impl<'a, W: Write> Serialize<LE, Amf3Writer<'_, W>> for &'a Amf3Array {
 			LEWrite::write(writer, key)?;
 			ser_amf3(writer, value)?;
 		}
-		LEWrite::write(writer, &Amf3String("".into()))?;
+		LEWrite::write(writer, &Amf3String(String::new()))?;
 		for value in &self.vec {
 			ser_amf3(writer, value)?;
 		}
@@ -339,11 +335,11 @@ fn deser_amf3<R: Read>(reader: &mut Amf3Reader<R>) -> Res<Amf3> {
 		5 => Amf3::Double(LERead::read(reader)?),
 		6 => Amf3::String(LERead::read(reader)?),
 		9 => Amf3::Array(LERead::read(reader)?),
-		_ => return Err(Error::new(InvalidData, format!("invalid discriminant value for Amf3: {}", disc))),
+		_ => return Err(Error::new(InvalidData, format!("invalid discriminant value for Amf3: {disc}"))),
 	})
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a Amf3 {
+impl<W: Write> Serialize<LE, W> for &Amf3 {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		let mut writer = Amf3Writer { inner: writer, string_ref_table: vec![] };
 		ser_amf3(&mut writer, self)
@@ -363,11 +359,7 @@ fn ser_amf3<W: Write>(writer: &mut Amf3Writer<W>, amf3: &Amf3) -> Res<()> {
 
 impl From<bool> for Amf3 {
 	fn from(b: bool) -> Self {
-		if b {
-			Self::True
-		} else {
-			Self::False
-		}
+		if b { Self::True } else { Self::False }
 	}
 }
 

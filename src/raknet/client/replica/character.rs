@@ -26,7 +26,7 @@ impl<R: Read> Deserialize<LE, BEBitReader<R>> for TransitionState {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, BEBitWriter<W>> for &'a TransitionState {
+impl<W: Write> Serialize<LE, BEBitWriter<W>> for &TransitionState {
 	fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
 		match self {
 			TransitionState::None => writer.write_bits(0, 2),

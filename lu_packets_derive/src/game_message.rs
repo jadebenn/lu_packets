@@ -36,7 +36,8 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 				#ser_code
 			}
 		}
-	}).into()
+	})
+	.into()
 }
 
 fn gen_deser_code(fields: &Fields) -> TokenStream {
@@ -55,13 +56,13 @@ fn gen_deser_code(fields: &Fields) -> TokenStream {
 			Type::Path(path) => path.path.is_ident("bool"),
 			_ => false,
 		};
-		let default = get_gm_default(&f);
+		let default = get_gm_default(f);
 		let field_needs_bitreader = is_bool || default.is_some();
 		let create_bitreader = if !msg_needs_bitreader && field_needs_bitreader {
 			msg_needs_bitreader = true;
 			quote! { let mut reader = &mut ::endio_bit::BEBitReader::new(reader); }
 		} else {
-			quote! { }
+			quote! {}
 		};
 		let val = if is_bool {
 			quote! { reader.read_bit()? }
@@ -103,13 +104,13 @@ fn gen_ser_code(fields: &Fields) -> TokenStream {
 			Type::Path(path) => path.path.is_ident("bool"),
 			_ => false,
 		};
-		let default = get_gm_default(&f);
+		let default = get_gm_default(f);
 		let field_needs_bitwriter = is_bool || default.is_some();
 		let create_bitwriter = if !msg_needs_bitwriter && field_needs_bitwriter {
 			msg_needs_bitwriter = true;
 			quote! { let mut writer = &mut ::endio_bit::BEBitWriter::new(writer); }
 		} else {
-			quote! { }
+			quote! {}
 		};
 		let write = if is_bool {
 			quote! { writer.write_bit(self.#ident)?; }

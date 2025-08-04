@@ -26,13 +26,11 @@ pub fn derive(input: proc_macro::TokenStream, opt_dest: Option<&Ident>) -> proc_
 		let variant = &v.ident;
 		let fields = match &v.fields {
 			Fields::Named(_) => panic!("use a tuple or unit variant"),
-			Fields::Unit => { continue }
+			Fields::Unit => continue,
 			Fields::Unnamed(fields) => fields,
 		};
 
-		if fields.unnamed.len() != 1 {
-			panic!("use exactly one tuple argument");
-		}
+		assert!(!(fields.unnamed.len() != 1), "use exactly one tuple argument");
 		let first = fields.unnamed.first().unwrap();
 		let variant_ty = &first.ty;
 
@@ -47,5 +45,6 @@ pub fn derive(input: proc_macro::TokenStream, opt_dest: Option<&Ident>) -> proc_
 	}
 	(quote! {
 		#(#impls)*
-	}).into()
+	})
+	.into()
 }

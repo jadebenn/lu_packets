@@ -42,7 +42,7 @@ impl From<u8> for AsciiChar {
 impl From<u8> for Ucs2Char {
 	fn from(byte: u8) -> Self {
 		// todo: range check
-		Self(byte as u16)
+		Self(u16::from(byte))
 	}
 }
 
@@ -55,7 +55,7 @@ pub trait LuStrExt {
 	type Char: LuChar;
 
 	fn from_slice(slice: &[<Self::Char as LuChar>::Int]) -> &[Self::Char] {
-		unsafe { &*(slice as *const [<Self::Char as LuChar>::Int] as *const [Self::Char]) }
+		unsafe { &*(std::ptr::from_ref::<[<Self::Char as LuChar>::Int]>(slice) as *const [Self::Char]) }
 	}
 
 	fn as_slice(&self) -> &[<Self::Char as LuChar>::Int];
@@ -68,7 +68,7 @@ impl LuStrExt for LuStr {
 	type Char = AsciiChar;
 
 	fn as_slice(&self) -> &[<Self::Char as LuChar>::Int] {
-		unsafe { &*(self as *const [Self::Char] as *const [<Self::Char as LuChar>::Int]) }
+		unsafe { &*(std::ptr::from_ref::<[Self::Char]>(self) as *const [<Self::Char as LuChar>::Int]) }
 	}
 
 	fn to_string(&self) -> String {
@@ -84,7 +84,7 @@ impl LuStrExt for LuWStr {
 	type Char = Ucs2Char;
 
 	fn as_slice(&self) -> &[<Self::Char as LuChar>::Int] {
-		unsafe { &*(self as *const [Self::Char] as *const [<Self::Char as LuChar>::Int]) }
+		unsafe { &*(std::ptr::from_ref::<[Self::Char]>(self) as *const [<Self::Char as LuChar>::Int]) }
 	}
 
 	fn to_string(&self) -> String {

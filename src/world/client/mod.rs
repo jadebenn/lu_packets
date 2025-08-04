@@ -167,7 +167,7 @@ where
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		writer.write(self.chars.len() as u8)?;
 		writer.write(self.selected_char)?;
-		for chr in self.chars.iter() {
+		for chr in &self.chars {
 			writer.write(chr)?;
 		}
 		Ok(())
@@ -220,7 +220,7 @@ pub enum CharacterCreateResponse {
 	GeneralFailure,
 	/// The selected name is not allowed by the name moderation policy.
 	NameNotAllowed,
-	/// The ThreePartName is already in use.
+	/// The `ThreePartName` is already in use.
 	PredefinedNameInUse,
 	/// The custom name is already in use.
 	CustomNameInUse,
@@ -378,9 +378,9 @@ impl<R: Read> Deserialize<LE, R> for AddFriendResponse {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a AddFriendResponse {
+impl<W: Write> Serialize<LE, W> for &AddFriendResponse {
 	fn serialize(self, writer: &mut W) -> Res<()> {
-		let disc = unsafe { *(&self.response_type as *const AddFriendResponseType as *const u8) };
+		let disc = unsafe { *(&raw const self.response_type).cast::<u8>() };
 		LEWrite::write(writer, disc)?;
 		let mut is_online_x = &false;
 		let mut sender_id_x = &0;
@@ -539,7 +539,7 @@ impl<R: Read + LERead> Deserialize<LE, R> for ChatModerationString {
 	}
 }
 
-impl<'a, W: Write + LEWrite> Serialize<LE, W> for &'a ChatModerationString {
+impl<W: Write + LEWrite> Serialize<LE, W> for &ChatModerationString {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		LEWrite::write(writer, self.spans.is_empty())?;
 		LEWrite::write(writer, 0u16)?;

@@ -23,12 +23,12 @@ pub struct Cdclient {
 
 impl Cdclient {
 	fn get_comps(&mut self, lot: Lot) -> &Vec<u32> {
-		if !self.comp_cache.contains_key(&lot) {
+		if let std::collections::hash_map::Entry::Vacant(e) = self.comp_cache.entry(lot) {
 			let mut stmt = self.conn.prepare("select component_type from componentsregistry where id = ?").unwrap();
 			let rows: Vec<_> = stmt.query_map(params![lot], |row| row.get(0)).unwrap().map(|x| x.unwrap()).collect();
-			self.comp_cache.insert(lot, rows);
+			e.insert(rows);
 		}
-		&self.comp_cache.get(&lot).unwrap()
+		self.comp_cache.get(&lot).unwrap()
 	}
 }
 
@@ -39,7 +39,7 @@ fn visit_dirs(dir: &Path, cdclient: &mut Cdclient, level: usize) -> Res<usize> {
 			let entry = entry?;
 			let path = entry.path();
 			packet_count += if path.is_dir() { visit_dirs(&path, cdclient, level + 1) } else { parse(&path, cdclient) }?;
-			println!("packet count = {:>level$}", packet_count, level = level * 6);
+			println!("packet count = {packet_count:>level$}", level = level * 6);
 		}
 	}
 	Ok(packet_count)
@@ -159,7 +159,7 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
 				|| file.name().contains("[27]"))
 		{
 			let mut ctx = ZipContext { zip: file, comps: &mut comps, cdclient, assert_fully_read: true };
-			let msg: Message = ctx.read().expect(&format!("Zip: {}, Filename: {}, {} bytes", path.to_str().unwrap(), ctx.zip.name(), ctx.zip.size()));
+			let msg: Message = ctx.read().unwrap_or_else(|_| panic!("Zip: {}, Filename: {}, {} bytes", path.to_str().unwrap(), ctx.zip.name(), ctx.zip.size()));
 			file = ctx.zip;
 			if unsafe { PRINT_PACKETS } {
 				dbg!(&msg);
@@ -197,6 +197,6 @@ fn main() {
 	let start = Instant::now();
 	let packet_count = if !capture.is_dir() && capture.extension().unwrap() == "zip" { parse(&capture, &mut cdclient) } else { visit_dirs(&capture, &mut cdclient, 0) }.unwrap();
 	println!();
-	println!("Number of parsed packets: {}", packet_count);
+	println!("Number of parsed packets: {packet_count}");
 	println!("Time taken: {:?}", start.elapsed());
 }

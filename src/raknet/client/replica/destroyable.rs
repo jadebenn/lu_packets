@@ -95,7 +95,7 @@ impl<R: Read> Deserialize<LE, BEBitReader<R>> for StatsInfo {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, BEBitWriter<W>> for &'a StatsInfo {
+impl<W: Write> Serialize<LE, BEBitWriter<W>> for &StatsInfo {
 	fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
 		LEWrite::write(writer, self.cur_health)?;
 		LEWrite::write(writer, self.max_health)?;

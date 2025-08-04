@@ -79,16 +79,16 @@ impl<R: Read> Deserialize<LE, BEBitReader<R>> for MovingPlatformConstruction {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, BEBitWriter<W>> for &'a MovingPlatformConstruction {
+impl<W: Write> Serialize<LE, BEBitWriter<W>> for &MovingPlatformConstruction {
 	fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
 		writer.write_bit(self.subcomponent_infos.is_some())?;
 		if let Some(path_info) = &self.path_info {
-			if !path_info.path_name.is_empty() {
+			if path_info.path_name.is_empty() {
+				writer.write_bit(false)?;
+			} else {
 				writer.write_bit(true)?;
 				writer.write_bit(true)?;
 				crate::raknet::client::replica::ReplicaS::serialize(path_info, writer)?;
-			} else {
-				writer.write_bit(false)?;
 			}
 		} else {
 			writer.write_bit(false)?;

@@ -1,14 +1,14 @@
 [package]
 name = "lu_packets"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["lcdr"]
-edition = "2018"
+edition = "2024"
 license = "AGPL-3.0-or-later"
-repository = "https://github.com/lcdr/lu_packets/"
+repository = "https://github.com/jadebenn/lu_packets/"
 
 [dependencies]
-endio = { git = "https://github.com/lcdr/endio", rev = "6e988eed6d9d3b1fa0edde34062edfb3b01d344a" }
-endio_bit = { git = "https://github.com/lcdr/endio_bit", rev = "46b1b0eda359dd85b5eabf9714e839c3728c75af" }
+endio = { git = "https://github.com/jadebenn/endio" }
+endio_bit = { git = "https://github.com/jadebenn/endio_bit" }
 lu_packets_derive = { path = "lu_packets_derive" }
 flate2 = { version = "1.0", features = ["zlib"], default-features = false }
 
@@ -16,3 +16,6 @@ flate2 = { version = "1.0", features = ["zlib"], default-features = false }
 libsqlite3-sys = { version = "0.20.1", features = ["bundled"] }
 rusqlite = "0.24.2"
 zip = "0.6.3"
+
+[lints.clippy]
+pedantic = "warn"

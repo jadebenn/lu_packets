@@ -30,7 +30,7 @@ impl LnvValue {
 	#[rustfmt::skip]
 	fn parse_ty_val(wstr: &LuWStr) -> Self {
 		let string: String = wstr.to_string();
-		let (ty, val) = string.split_at(string.find(":").unwrap());
+		let (ty, val) = string.split_at(string.find(':').unwrap());
 		let val = val.split_at(1).1;
 		match ty {
 			"0"  => LnvValue::WString(val.try_into().unwrap()),
@@ -51,15 +51,15 @@ impl std::fmt::Debug for LnvValue {
 	#[rustfmt::skip]
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
 		match self {
-			LnvValue::WString(x) => write!(f, "{:?}", x),
-			LnvValue::I32    (x) => write!(f, "{:?}i32", x),
-			LnvValue::F32    (x) => write!(f, "{:?}f32", x),
-			LnvValue::F64    (x) => write!(f, "{:?}f64", x),
-			LnvValue::U32    (x) => write!(f, "{:?}u32", x),
-			LnvValue::Bool   (x) => write!(f, "{:?}", x),
-			LnvValue::I64    (x) => write!(f, "{:?}i64", x),
-			LnvValue::U64    (x) => write!(f, "{:?}u64", x),
-			LnvValue::String (x) => write!(f, "{:?}", x),
+			LnvValue::WString(x) => write!(f, "{x:?}"),
+			LnvValue::I32    (x) => write!(f, "{x:?}i32"),
+			LnvValue::F32    (x) => write!(f, "{x:?}f32"),
+			LnvValue::F64    (x) => write!(f, "{x:?}f64"),
+			LnvValue::U32    (x) => write!(f, "{x:?}u32"),
+			LnvValue::Bool   (x) => write!(f, "{x:?}"),
+			LnvValue::I64    (x) => write!(f, "{x:?}i64"),
+			LnvValue::U64    (x) => write!(f, "{x:?}u64"),
+			LnvValue::String (x) => write!(f, "{x:?}"),
 		}
 	}
 }
@@ -134,7 +134,14 @@ impl<const N: usize> From<&[u8; N]> for LnvValue {
 #[derive(PartialEq)]
 pub struct LuNameValue(HashMap<LuVarWString<u32>, LnvValue>);
 
+impl Default for LuNameValue {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
 impl LuNameValue {
+	#[must_use]
 	pub fn new() -> Self {
 		LuNameValue(HashMap::new())
 	}
@@ -159,7 +166,7 @@ impl std::ops::DerefMut for LuNameValue {
 impl std::fmt::Debug for LuNameValue {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
 		write!(f, "lnv! ")?;
-		f.debug_map().entries(self.0.iter().map(|(k, v)| (k, v))).finish()
+		f.debug_map().entries(self.0.iter()).finish()
 	}
 }
 
@@ -187,7 +194,7 @@ impl<R: Read> Deserialize<LE, R> for LuNameValue {
 		let mut res = lnv!();
 		for _ in 0..lnv_len {
 			let enc_key_len: u8 = LERead::read(unc_reader)?;
-			let key = LuVarWString::deser_content(unc_reader, enc_key_len as u32 / 2)?;
+			let key = LuVarWString::deser_content(unc_reader, u32::from(enc_key_len) / 2)?;
 			let value = LERead::read(unc_reader)?;
 			res.insert(key, value);
 		}
@@ -195,7 +202,7 @@ impl<R: Read> Deserialize<LE, R> for LuNameValue {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a LuNameValue {
+impl<W: Write> Serialize<LE, W> for &LuNameValue {
 	fn serialize(self, writer: &mut W) -> Res<()> {
 		let mut uncompressed: Vec<u8> = vec![];
 		LEWrite::write(&mut uncompressed, self.len() as u32)?;
@@ -213,11 +220,7 @@ impl<'a, W: Write> Serialize<LE, W> for &'a LuNameValue {
 			LEWrite::write(&mut uncompressed, value)?;
 		}
 		let is_compressed = true;
-		if !is_compressed {
-			LEWrite::write(writer, uncompressed.len() as u32 + 1)?;
-			LEWrite::write(writer, false)?;
-			writer.write_all(&uncompressed)?;
-		} else {
+		if is_compressed {
 			let mut compressed = vec![];
 			ZlibEncoder::new(&mut compressed, Compression::new(6)).write_all(&uncompressed)?;
 			LEWrite::write(writer, compressed.len() as u32 + 1 + 4 + 4)?;
@@ -225,6 +228,10 @@ impl<'a, W: Write> Serialize<LE, W> for &'a LuNameValue {
 			LEWrite::write(writer, uncompressed.len() as u32)?;
 			LEWrite::write(writer, compressed.len() as u32)?;
 			writer.write_all(&compressed)?;
+		} else {
+			LEWrite::write(writer, uncompressed.len() as u32 + 1)?;
+			LEWrite::write(writer, false)?;
+			writer.write_all(&uncompressed)?;
 		}
 		Ok(())
 	}
@@ -255,7 +262,7 @@ impl From<&LuNameValue> for LuVarWString<u32> {
 		let mut key_value: Vec<_> = lnv.0.iter().collect();
 		key_value.sort_unstable_by(|(k1, _), (k2, _)| k1.cmp(k2));
 		for (key, value) in key_value {
-			wstr.extend_from_slice(&key);
+			wstr.extend_from_slice(key);
 			wstr.push(b'='.into());
 			#[rustfmt::skip]
 			let (disc, val_str) = match value {
@@ -264,7 +271,7 @@ impl From<&LuNameValue> for LuVarWString<u32> {
 				LnvValue::F32    (val) => ("3",  val.to_string()),
 				LnvValue::F64    (val) => ("4",  val.to_string()),
 				LnvValue::U32    (val) => ("5",  val.to_string()),
-				LnvValue::Bool   (val) => ("7",  (*val as u8).to_string()),
+				LnvValue::Bool   (val) => ("7",  u8::from(*val).to_string()),
 				LnvValue::I64    (val) => ("8",  val.to_string()),
 				LnvValue::U64    (val) => ("9",  val.to_string()),
 				LnvValue::String (val) => ("13", val.to_string()),
