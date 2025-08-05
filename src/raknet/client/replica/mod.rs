@@ -52,7 +52,7 @@ trait ReplicaS<W: Write> {
 }
 
 impl<R: Read, T: Deserialize<LE, BEBitReader<R>>> ReplicaD<R> for T {
-    default fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self> {
+    fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self> {
         Deserialize::deserialize(reader)
     }
 }
@@ -61,44 +61,8 @@ impl<'a, W: Write, T> ReplicaS<W> for &'a T
 where
     &'a T: Serialize<LE, BEBitWriter<W>>,
 {
-    default fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
+    fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
         Serialize::serialize(self, writer)
-    }
-}
-
-impl<R: Read> ReplicaD<R> for bool {
-    fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self> {
-        reader.read_bit()
-    }
-}
-
-impl<W: Write> ReplicaS<W> for &bool {
-    fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
-        writer.write_bit(*self)
-    }
-}
-
-impl<R: Read, T: ReplicaD<R> + Deserialize<LE, BEBitReader<R>>> ReplicaD<R> for Option<T> {
-    fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self> {
-        let bit = reader.read_bit()?;
-        Ok(if bit {
-            Some(ReplicaD::deserialize(reader)?)
-        } else {
-            None
-        })
-    }
-}
-
-impl<W: Write, T> ReplicaS<W> for &Option<T>
-where
-    for<'a> &'a T: ReplicaS<W> + Serialize<LE, BEBitWriter<W>>,
-{
-    fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
-        writer.write_bit(self.is_some())?;
-        if let Some(x) = self {
-            ReplicaS::serialize(x, writer)?;
-        }
-        Ok(())
     }
 }
 

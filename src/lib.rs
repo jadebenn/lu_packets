@@ -1,7 +1,6 @@
 /*!
     Documentation and (de-)serialization support for LU's network protocol.
 */
-#![feature(min_specialization)]
 
 /**
     Creates an [`Amf3::Array`](crate::world::amf3::Amf3::Array) containing the arguments.
