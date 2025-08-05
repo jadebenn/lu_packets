@@ -15,7 +15,7 @@ flate2 = { version = "1.1.2", features = ["zlib"], default-features = false }
 [dev-dependencies]
 libsqlite3-sys = { version = "0.35.0", features = ["bundled"] }
 rusqlite = "0.37.0"
-zip = "0.6.3" # TODO: UPGRADE
+zip = "4.3.0"
 
 [lints.clippy]
 pedantic = "warn"
