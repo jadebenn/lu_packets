@@ -9,26 +9,26 @@ use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
 
 #[derive(BitVariantTests, Debug, PartialEq, ReplicaSerde)]
 pub struct LupExhibitConstruction {
-	pub exhibited_lot: Option<Lot>,
+    pub exhibited_lot: Option<Lot>,
 }
 
 impl ComponentConstruction for LupExhibitConstruction {
-	fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
-		self.serialize(writer)
-	}
+    fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
+        self.serialize(writer)
+    }
 }
 
 pub type LupExhibitSerialization = LupExhibitConstruction;
 
 impl ComponentSerialization for LupExhibitSerialization {
-	fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
-		self.serialize(writer)
-	}
+    fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
+        self.serialize(writer)
+    }
 }
 
 pub struct LupExhibitProtocol;
 
 impl ComponentProtocol for LupExhibitProtocol {
-	type Construction = LupExhibitConstruction;
-	type Serialization = LupExhibitSerialization;
+    type Construction = LupExhibitConstruction;
+    type Serialization = LupExhibitSerialization;
 }

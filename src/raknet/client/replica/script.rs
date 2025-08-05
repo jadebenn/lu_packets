@@ -9,27 +9,27 @@ use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
 
 #[derive(BitVariantTests, Debug, PartialEq, ReplicaSerde)]
 pub struct ScriptConstruction {
-	pub network_vars: Option<LuNameValue>,
+    pub network_vars: Option<LuNameValue>,
 }
 
 #[derive(BitVariantTests, Debug, PartialEq, ReplicaSerde)]
 pub struct ScriptSerialization {}
 
 impl ComponentConstruction for ScriptConstruction {
-	fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
-		self.serialize(writer)
-	}
+    fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
+        self.serialize(writer)
+    }
 }
 
 impl ComponentSerialization for ScriptSerialization {
-	fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
-		self.serialize(writer)
-	}
+    fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()> {
+        self.serialize(writer)
+    }
 }
 
 pub struct ScriptProtocol;
 
 impl ComponentProtocol for ScriptProtocol {
-	type Construction = ScriptConstruction;
-	type Serialization = ScriptSerialization;
+    type Construction = ScriptConstruction;
+    type Serialization = ScriptSerialization;
 }

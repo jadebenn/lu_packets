@@ -23,34 +23,34 @@ const CLONE_ID_INVALID: CloneId = 0;
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, GmParam)]
 pub struct ZoneId {
-	pub map_id: MapId,
-	pub instance_id: u16,
-	pub clone_id: CloneId,
+    pub map_id: MapId,
+    pub instance_id: u16,
+    pub clone_id: CloneId,
 }
 
 impl ZoneId {
-	const INVALID: Self = Self { map_id: 0, instance_id: 0, clone_id: 0 };
+    const INVALID: Self = Self { map_id: 0, instance_id: 0, clone_id: 0 };
 }
 
 #[derive(Copy, Clone, Debug, Default, Deserialize, Serialize, PartialEq, GmParam)]
 pub struct Vector3 {
-	pub x: f32,
-	pub y: f32,
-	pub z: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 impl Vector3 {
-	pub const ZERO: Self = Self { x: 0.0, y: 0.0, z: 0.0 };
+    pub const ZERO: Self = Self { x: 0.0, y: 0.0, z: 0.0 };
 }
 
 #[derive(Copy, Clone, Debug, Default, Deserialize, Serialize, PartialEq, GmParam)]
 pub struct Quaternion {
-	pub x: f32,
-	pub y: f32,
-	pub z: f32,
-	pub w: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
 }
 
 impl Quaternion {
-	pub const IDENTITY: Self = Self { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
+    pub const IDENTITY: Self = Self { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
 }
