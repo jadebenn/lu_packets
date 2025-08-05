@@ -215,7 +215,11 @@ where
         str_len -= 1;
         let message = LuVarWString::deser_content(reader, str_len)?;
         let _: u16 = LERead::read(reader)?;
-        Ok(Self { chat_channel, source_id, message })
+        Ok(Self {
+            chat_channel,
+            source_id,
+            message,
+        })
     }
 }
 

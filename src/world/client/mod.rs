@@ -155,7 +155,10 @@ where
         for _ in 0..len {
             chars.push(reader.read()?);
         }
-        Ok(Self { selected_char, chars })
+        Ok(Self {
+            selected_char,
+            chars,
+        })
     }
 }
 
@@ -326,10 +329,20 @@ pub struct AddFriendRequest {
 #[derive(Debug, PartialEq)]
 #[repr(u8)]
 pub enum AddFriendResponseType {
-    Accepted { is_online: bool, sender_id: ObjId, zone_id: ZoneId, is_best_friend: bool, is_free_trial: bool },
-    AlreadyFriend { is_best_friend: bool },
+    Accepted {
+        is_online: bool,
+        sender_id: ObjId,
+        zone_id: ZoneId,
+        is_best_friend: bool,
+        is_free_trial: bool,
+    },
+    AlreadyFriend {
+        is_best_friend: bool,
+    },
     InvalidCharacter,
-    GeneralError { is_best_friend: bool },
+    GeneralError {
+        is_best_friend: bool,
+    },
     YourFriendListFull,
     TheirFriendListFull,
     Declined,
@@ -384,11 +397,21 @@ impl<W: Write> Serialize<LE, W> for &AddFriendResponse {
         LEWrite::write(writer, disc)?;
         let mut is_online_x = &false;
         let mut sender_id_x = &0;
-        let mut zone_id_x = &ZoneId { map_id: 0, instance_id: 0, clone_id: 0 };
+        let mut zone_id_x = &ZoneId {
+            map_id: 0,
+            instance_id: 0,
+            clone_id: 0,
+        };
         let mut is_best_friend_x = &false;
         let mut is_free_trial_x = &false;
         match &self.response_type {
-            AddFriendResponseType::Accepted { is_online, sender_id, zone_id, is_best_friend, is_free_trial } => {
+            AddFriendResponseType::Accepted {
+                is_online,
+                sender_id,
+                zone_id,
+                is_best_friend,
+                is_free_trial,
+            } => {
                 is_online_x = is_online;
                 sender_id_x = sender_id;
                 zone_id_x = zone_id;
@@ -531,11 +554,19 @@ impl<R: Read + LERead> Deserialize<LE, R> for ChatModerationString {
             let start_index = LERead::read(reader)?;
             let length = LERead::read(reader)?;
             if length != 0 {
-                spans.push(ModerationSpan { start_index, length });
+                spans.push(ModerationSpan {
+                    start_index,
+                    length,
+                });
             }
             i += 1;
         }
-        Ok(Self { request_id, chat_mode, whisper_name, spans })
+        Ok(Self {
+            request_id,
+            chat_mode,
+            whisper_name,
+            spans,
+        })
     }
 }
 

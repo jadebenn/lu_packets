@@ -24,8 +24,15 @@ pub struct Cdclient {
 impl Cdclient {
     fn get_comps(&mut self, lot: Lot) -> &Vec<u32> {
         if let std::collections::hash_map::Entry::Vacant(e) = self.comp_cache.entry(lot) {
-            let mut stmt = self.conn.prepare("select component_type from componentsregistry where id = ?").unwrap();
-            let rows: Vec<_> = stmt.query_map(params![lot], |row| row.get(0)).unwrap().map(|x| x.unwrap()).collect();
+            let mut stmt = self
+                .conn
+                .prepare("select component_type from componentsregistry where id = ?")
+                .unwrap();
+            let rows: Vec<_> = stmt
+                .query_map(params![lot], |row| row.get(0))
+                .unwrap()
+                .map(|x| x.unwrap())
+                .collect();
             e.insert(rows);
         }
         self.comp_cache.get(&lot).unwrap()
@@ -38,7 +45,11 @@ fn visit_dirs(dir: &Path, cdclient: &mut Cdclient, level: usize) -> Res<usize> {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
-            packet_count += if path.is_dir() { visit_dirs(&path, cdclient, level + 1) } else { parse(&path, cdclient) }?;
+            packet_count += if path.is_dir() {
+                visit_dirs(&path, cdclient, level + 1)
+            } else {
+                parse(&path, cdclient)
+            }?;
             println!("packet count = {packet_count:>level$}", level = level * 6);
         }
     }
@@ -65,7 +76,20 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
         }
         if (file.name().contains("[53-01-"))
             || (file.name().contains("[53-05-00-00]"))
-            || (file.name().contains("[53-04-") && !file.name().contains("[53-04-00-16]") && !file.name().contains("[e6-00]") && !file.name().contains("[6b-03]") && !file.name().contains("[16-04]") && !file.name().contains("[49-04]") && !file.name().contains("[ad-04]") && !file.name().contains("[1c-05]") && !file.name().contains("[230]") && !file.name().contains("[875]") && !file.name().contains("[1046]") && !file.name().contains("[1097]") && !file.name().contains("[1197]") && !file.name().contains("[1308]"))
+            || (file.name().contains("[53-04-")
+                && !file.name().contains("[53-04-00-16]")
+                && !file.name().contains("[e6-00]")
+                && !file.name().contains("[6b-03]")
+                && !file.name().contains("[16-04]")
+                && !file.name().contains("[49-04]")
+                && !file.name().contains("[ad-04]")
+                && !file.name().contains("[1c-05]")
+                && !file.name().contains("[230]")
+                && !file.name().contains("[875]")
+                && !file.name().contains("[1046]")
+                && !file.name().contains("[1097]")
+                && !file.name().contains("[1197]")
+                && !file.name().contains("[1308]"))
             || (file.name().contains("[53-02-")
                 || (file.name().contains("[53-05-")
                     && !file.name().contains("[53-05-00-00]")
@@ -158,8 +182,20 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
                     && !file.name().contains("(14547)"))
                 || file.name().contains("[27]"))
         {
-            let mut ctx = ZipContext { zip: file, comps: &mut comps, cdclient, assert_fully_read: true };
-            let msg: Message = ctx.read().unwrap_or_else(|_| panic!("Zip: {}, Filename: {}, {} bytes", path.to_str().unwrap(), ctx.zip.name(), ctx.zip.size()));
+            let mut ctx = ZipContext {
+                zip: file,
+                comps: &mut comps,
+                cdclient,
+                assert_fully_read: true,
+            };
+            let msg: Message = ctx.read().unwrap_or_else(|_| {
+                panic!(
+                    "Zip: {}, Filename: {}, {} bytes",
+                    path.to_str().unwrap(),
+                    ctx.zip.name(),
+                    ctx.zip.size()
+                )
+            });
             file = ctx.zip;
             if unsafe { PRINT_PACKETS } {
                 dbg!(&msg);
@@ -170,7 +206,14 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
                 // assert fully read
                 let mut rest = vec![];
                 std::io::Read::read_to_end(&mut file, &mut rest).unwrap();
-                assert_eq!(rest, vec![], "Zip: {}, Filename: {}, {} bytes", path.to_str().unwrap(), file.name(), file.size());
+                assert_eq!(
+                    rest,
+                    vec![],
+                    "Zip: {}, Filename: {}, {} bytes",
+                    path.to_str().unwrap(),
+                    file.name(),
+                    file.size()
+                );
             }
             i += 1;
             continue;
@@ -189,13 +232,21 @@ fn main() {
         return;
     }
     let capture = fs::canonicalize(&args[1]).unwrap();
-    let mut cdclient = Cdclient { conn: Connection::open(&args[2]).unwrap(), comp_cache: HashMap::new() };
+    let mut cdclient = Cdclient {
+        conn: Connection::open(&args[2]).unwrap(),
+        comp_cache: HashMap::new(),
+    };
     unsafe {
         PRINT_PACKETS = args.get(3).is_some();
     }
 
     let start = Instant::now();
-    let packet_count = if !capture.is_dir() && capture.extension().unwrap() == "zip" { parse(&capture, &mut cdclient) } else { visit_dirs(&capture, &mut cdclient, 0) }.unwrap();
+    let packet_count = if !capture.is_dir() && capture.extension().unwrap() == "zip" {
+        parse(&capture, &mut cdclient)
+    } else {
+        visit_dirs(&capture, &mut cdclient, 0)
+    }
+    .unwrap();
     println!();
     println!("Number of parsed packets: {packet_count}");
     println!("Time taken: {:?}", start.elapsed());

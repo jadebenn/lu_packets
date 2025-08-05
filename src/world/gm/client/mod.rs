@@ -5,10 +5,17 @@ use lu_packets_derive::{FromVariants, GameMessage, GmParam, VariantTests};
 
 use crate::common::{OBJID_EMPTY, ObjId};
 
-pub use super::{EquipInventory, InventoryType, KillType, LootType, MissionState, ModifyPlayerZoneStatistic, MoveInventoryBatch, MoveItemInInventory, PetNotificationType, RemoveItemFromInventory, RemoveSkill, SetIgnoreProjectileCollision, UnEquipInventory};
+pub use super::{
+    EquipInventory, InventoryType, KillType, LootType, MissionState, ModifyPlayerZoneStatistic,
+    MoveInventoryBatch, MoveItemInInventory, PetNotificationType, RemoveItemFromInventory,
+    RemoveSkill, SetIgnoreProjectileCollision, UnEquipInventory,
+};
 use super::{GmString, GmWString};
 use crate::world::amf3::Amf3;
-use crate::world::{CLONE_ID_INVALID, CloneId, LOT_NULL, Lot, LuNameValue, MAP_ID_INVALID, MapId, Quaternion, Vector3, ZoneId};
+use crate::world::{
+    CLONE_ID_INVALID, CloneId, LOT_NULL, Lot, LuNameValue, MAP_ID_INVALID, MapId, Quaternion,
+    Vector3, ZoneId,
+};
 
 #[derive(Debug, Deserialize, PartialEq, Serialize)]
 pub struct SubjectGameMessage {

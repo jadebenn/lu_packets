@@ -48,7 +48,11 @@ impl TryFrom<usize> for U29 {
     type Error = U29Error;
 
     fn try_from(value: usize) -> Result<Self, Self::Error> {
-        if value >= 1 << 29 { Err(U29Error) } else { Ok(Self(value as u32)) }
+        if value >= 1 << 29 {
+            Err(U29Error)
+        } else {
+            Ok(Self(value as u32))
+        }
     }
 }
 
@@ -117,7 +121,11 @@ impl TryFrom<&str> for Amf3String {
     type Error = U29Error;
 
     fn try_from(string: &str) -> Result<Self, Self::Error> {
-        if string.len() & (1 << 29) != 0 { Err(U29Error) } else { Ok(Self(string.into())) }
+        if string.len() & (1 << 29) != 0 {
+            Err(U29Error)
+        } else {
+            Ok(Self(string.into()))
+        }
     }
 }
 
@@ -190,7 +198,10 @@ impl Default for Amf3Array {
 impl Amf3Array {
     #[must_use]
     pub fn new() -> Self {
-        Self { map: HashMap::new(), vec: vec![] }
+        Self {
+            map: HashMap::new(),
+            vec: vec![],
+        }
     }
 }
 
@@ -207,7 +218,11 @@ impl Debug for Amf3Array {
         } else if map_empty && vec_empty {
             write!(f, "amf3! {{}}")
         } else {
-            write!(f, "Amf3Array {{ map: {:?}, vec: {:?} }}", self.map, self.vec)
+            write!(
+                f,
+                "Amf3Array {{ map: {:?}, vec: {:?} }}",
+                self.map, self.vec
+            )
         }
     }
 }
@@ -322,7 +337,10 @@ impl Debug for Amf3 {
 
 impl<R: Read> Deserialize<LE, R> for Amf3 {
     fn deserialize(reader: &mut R) -> Res<Self> {
-        let mut reader = Amf3Reader { inner: reader, string_ref_table: vec![] };
+        let mut reader = Amf3Reader {
+            inner: reader,
+            string_ref_table: vec![],
+        };
         deser_amf3(&mut reader)
     }
 }
@@ -335,13 +353,21 @@ fn deser_amf3<R: Read>(reader: &mut Amf3Reader<R>) -> Res<Amf3> {
         5 => Amf3::Double(LERead::read(reader)?),
         6 => Amf3::String(LERead::read(reader)?),
         9 => Amf3::Array(LERead::read(reader)?),
-        _ => return Err(Error::new(InvalidData, format!("invalid discriminant value for Amf3: {disc}"))),
+        _ => {
+            return Err(Error::new(
+                InvalidData,
+                format!("invalid discriminant value for Amf3: {disc}"),
+            ));
+        }
     })
 }
 
 impl<W: Write> Serialize<LE, W> for &Amf3 {
     fn serialize(self, writer: &mut W) -> Res<()> {
-        let mut writer = Amf3Writer { inner: writer, string_ref_table: vec![] };
+        let mut writer = Amf3Writer {
+            inner: writer,
+            string_ref_table: vec![],
+        };
         ser_amf3(&mut writer, self)
     }
 }
@@ -390,7 +416,14 @@ mod tests {
 
     #[test]
     fn test_u29() {
-        for (bytes, integer) in &[(&b"\x7f"[..], 0x7f), (&b"\xa2\x43"[..], 4419), (&b"\x88\x00"[..], 1024), (&b"\xff\xff\x7e"[..], 0x1ffffe), (&b"\x80\xc0\x80\x00"[..], 0x200000), (&b"\xbf\xff\xff\xfe"[..], 0xffffffe)] {
+        for (bytes, integer) in &[
+            (&b"\x7f"[..], 0x7f),
+            (&b"\xa2\x43"[..], 4419),
+            (&b"\x88\x00"[..], 1024),
+            (&b"\xff\xff\x7e"[..], 0x1ffffe),
+            (&b"\x80\xc0\x80\x00"[..], 0x200000),
+            (&b"\xbf\xff\xff\xfe"[..], 0xffffffe),
+        ] {
             let mut reader = &bytes[..];
             let val: U29 = reader.read().unwrap();
             assert_eq!(val.0, *integer);

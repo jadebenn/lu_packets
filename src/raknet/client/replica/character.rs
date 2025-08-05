@@ -10,7 +10,9 @@ use crate::common::{LuVarWString, ObjId};
 #[derive(Debug, PartialEq)]
 pub enum TransitionState {
     None,
-    Arrive { last_custom_build_parts: LuVarWString<u16> },
+    Arrive {
+        last_custom_build_parts: LuVarWString<u16>,
+    },
     Leave,
 }
 
@@ -19,9 +21,16 @@ impl<R: Read> Deserialize<LE, BEBitReader<R>> for TransitionState {
         let disc = reader.read_bits(2)?;
         Ok(match disc {
             0 => TransitionState::None,
-            1 => TransitionState::Arrive { last_custom_build_parts: LERead::read(reader)? },
+            1 => TransitionState::Arrive {
+                last_custom_build_parts: LERead::read(reader)?,
+            },
             2 => TransitionState::Leave,
-            _ => return Err(Error::new(InvalidData, "invalid discriminant for TransitionState")),
+            _ => {
+                return Err(Error::new(
+                    InvalidData,
+                    "invalid discriminant for TransitionState",
+                ));
+            }
         })
     }
 }
@@ -30,7 +39,9 @@ impl<W: Write> Serialize<LE, BEBitWriter<W>> for &TransitionState {
     fn serialize(self, writer: &mut BEBitWriter<W>) -> Res<()> {
         match self {
             TransitionState::None => writer.write_bits(0, 2),
-            TransitionState::Arrive { last_custom_build_parts } => {
+            TransitionState::Arrive {
+                last_custom_build_parts,
+            } => {
                 writer.write_bits(1, 2)?;
                 LEWrite::write(writer, last_custom_build_parts)
             }

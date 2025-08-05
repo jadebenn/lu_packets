@@ -36,7 +36,10 @@ impl<L> TryFrom<&[u8]> for LuVarString<L> {
 
     fn try_from(string: &[u8]) -> Result<Self, Self::Error> {
         // todo: check for invalid character ranges for ascii
-        Ok(Self(unsafe { (&*(std::ptr::from_ref::<[u8]>(string) as *const [AsciiChar])).into() }, PhantomData))
+        Ok(Self(
+            unsafe { (&*(std::ptr::from_ref::<[u8]>(string) as *const [AsciiChar])).into() },
+            PhantomData,
+        ))
     }
 }
 

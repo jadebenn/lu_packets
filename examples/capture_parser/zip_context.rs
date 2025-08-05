@@ -23,15 +23,21 @@ use lu_packets::{
         lup_exhibit::{LupExhibitConstruction, LupExhibitSerialization},
         module_assembly::ModuleAssemblyConstruction,
         moving_platform::{MovingPlatformConstruction, MovingPlatformSerialization},
-        mutable_model_behavior::{MutableModelBehaviorConstruction, MutableModelBehaviorSerialization},
+        mutable_model_behavior::{
+            MutableModelBehaviorConstruction, MutableModelBehaviorSerialization,
+        },
         pet::{PetConstruction, PetSerialization},
         phantom_physics::{PhantomPhysicsConstruction, PhantomPhysicsSerialization},
-        player_forced_movement::{PlayerForcedMovementConstruction, PlayerForcedMovementSerialization},
+        player_forced_movement::{
+            PlayerForcedMovementConstruction, PlayerForcedMovementSerialization,
+        },
         possessable::{PossessableConstruction, PossessableSerialization},
         possession_control::{PossessionControlConstruction, PossessionControlSerialization},
         quickbuild::{QuickbuildConstruction, QuickbuildSerialization},
         racing_control::{RacingControlConstruction, RacingControlSerialization},
-        rigid_body_phantom_physics::{RigidBodyPhantomPhysicsConstruction, RigidBodyPhantomPhysicsSerialization},
+        rigid_body_phantom_physics::{
+            RigidBodyPhantomPhysicsConstruction, RigidBodyPhantomPhysicsSerialization,
+        },
         script::ScriptConstruction,
         scripted_activity::{ScriptedActivityConstruction, ScriptedActivitySerialization},
         shooting_gallery::{ShootingGalleryConstruction, ShootingGallerySerialization},
@@ -47,7 +53,10 @@ use zip::read::ZipFile;
 
 use super::Cdclient;
 
-const COMP_ORDER: [u32; 35] = [108, 61, 1, 30, 20, 3, 40, 98, 7, 110, 109, 106, 4, 26, 17, 5, 9, 60, 11, 48, 25, 16, 100, 102, 19, 39, 23, 75, 42, 6, 49, 2, 44, 71, 107];
+const COMP_ORDER: [u32; 35] = [
+    108, 61, 1, 30, 20, 3, 40, 98, 7, 110, 109, 106, 4, 26, 17, 5, 9, 60, 11, 48, 25, 16, 100, 102,
+    19, 39, 23, 75, 42, 6, 49, 2, 44, 71, 107,
+];
 
 pub struct ZipContext<'a> {
     pub zip: ZipFile<'a>,
@@ -177,7 +186,12 @@ impl std::io::Read for ZipContext<'_> {
 
 // hacky hardcoded components to be able to read player replicas without DB lookup
 impl ReplicaContext for ZipContext<'_> {
-    fn get_comp_constructions<R: std::io::Read>(&mut self, network_id: u16, lot: Lot, config: &Option<LuNameValue>) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
+    fn get_comp_constructions<R: std::io::Read>(
+        &mut self,
+        network_id: u16,
+        lot: Lot,
+        config: &Option<LuNameValue>,
+    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
         let mut comps = self.cdclient.get_comps(lot).clone();
 
         Self::apply_whitelist(&mut comps, config);

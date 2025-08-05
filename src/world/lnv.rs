@@ -244,7 +244,12 @@ impl From<&LuVarWString<u32>> for LuNameValue {
         }
         let mut map = HashMap::new();
         for name_type_val in wstr.split(|c| *c == b'\n'.into()) {
-            let (name, type_val) = name_type_val.split_at(name_type_val.iter().position(|c| *c == b'='.into()).unwrap());
+            let (name, type_val) = name_type_val.split_at(
+                name_type_val
+                    .iter()
+                    .position(|c| *c == b'='.into())
+                    .unwrap(),
+            );
             let name: LuVarWString<u32> = name.into();
             let type_val = type_val.split_at(1).1;
             let lnv_value = LnvValue::parse_ty_val(type_val);

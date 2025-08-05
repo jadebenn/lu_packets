@@ -73,7 +73,16 @@ pub enum LoginResponse {
     /// The login was successful.
     Ok {
         // Strings used for event gating.
-        events: (LuString33, LuString33, LuString33, LuString33, LuString33, LuString33, LuString33, LuString33),
+        events: (
+            LuString33,
+            LuString33,
+            LuString33,
+            LuString33,
+            LuString33,
+            LuString33,
+            LuString33,
+            LuString33,
+        ),
         /// Used for version gating.
         version: (u16, u16, u16),
         /// The session key to be used for authenticating with world servers (to be passed in [`ClientValidation::session_key`](crate::world::server::ClientValidation::session_key)).
@@ -131,7 +140,21 @@ where
         let disc = unsafe { *std::ptr::from_ref::<LoginResponse>(self).cast::<u8>() };
         writer.write(disc)?;
         match self {
-            LoginResponse::Ok { events, version, session_key, redirect_address, chat_server_address, cdn_key, cdn_ticket, language, country_code, just_upgraded_from_ftp, is_ftp, time_remaining_in_ftp, stamps } => {
+            LoginResponse::Ok {
+                events,
+                version,
+                session_key,
+                redirect_address,
+                chat_server_address,
+                cdn_key,
+                cdn_ticket,
+                language,
+                country_code,
+                just_upgraded_from_ftp,
+                is_ftp,
+                time_remaining_in_ftp,
+                stamps,
+            } => {
                 writer.write(&events.0)?;
                 writer.write(&events.1)?;
                 writer.write(&events.2)?;
@@ -181,8 +204,30 @@ impl<R: Read + LERead> Deserialize<LE, R> for LoginResponse {
         let disc = LERead::read::<u8>(reader)?;
         match disc {
             1 => {
-                let events: (LuString33, LuString33, LuString33, LuString33, LuString33, LuString33, LuString33, LuString33) = (LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?);
-                let version: (u16, u16, u16) = (LERead::read(reader)?, LERead::read(reader)?, LERead::read(reader)?);
+                let events: (
+                    LuString33,
+                    LuString33,
+                    LuString33,
+                    LuString33,
+                    LuString33,
+                    LuString33,
+                    LuString33,
+                    LuString33,
+                ) = (
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                );
+                let version: (u16, u16, u16) = (
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                    LERead::read(reader)?,
+                );
                 let session_key: LuWString33 = LERead::read(reader)?;
                 let redirect_address: LuString33 = LERead::read(reader)?;
                 let chat_address: LuString33 = LERead::read(reader)?;
@@ -203,7 +248,21 @@ impl<R: Read + LERead> Deserialize<LE, R> for LoginResponse {
                     let stamp: Stamp = LERead::read(reader)?;
                     stamps.push(stamp);
                 }
-                Ok(Self::Ok { events, version, session_key, redirect_address: (redirect_address, redirect_port), chat_server_address: (chat_address, chat_port), cdn_key, cdn_ticket, language, country_code, just_upgraded_from_ftp, is_ftp, time_remaining_in_ftp, stamps })
+                Ok(Self::Ok {
+                    events,
+                    version,
+                    session_key,
+                    redirect_address: (redirect_address, redirect_port),
+                    chat_server_address: (chat_address, chat_port),
+                    cdn_key,
+                    cdn_ticket,
+                    language,
+                    country_code,
+                    just_upgraded_from_ftp,
+                    is_ftp,
+                    time_remaining_in_ftp,
+                    stamps,
+                })
             }
             5 => {
                 let mut padding = [0; 493];

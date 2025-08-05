@@ -81,7 +81,11 @@ impl<W: Write> ReplicaS<W> for &bool {
 impl<R: Read, T: ReplicaD<R> + Deserialize<LE, BEBitReader<R>>> ReplicaD<R> for Option<T> {
     fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self> {
         let bit = reader.read_bit()?;
-        Ok(if bit { Some(ReplicaD::deserialize(reader)?) } else { None })
+        Ok(if bit {
+            Some(ReplicaD::deserialize(reader)?)
+        } else {
+            None
+        })
     }
 }
 
@@ -112,8 +116,16 @@ pub trait ComponentProtocol {
 }
 
 pub trait ReplicaContext {
-    fn get_comp_constructions<R: Read>(&mut self, network_id: u16, lot: Lot, config: &Option<LuNameValue>) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>>;
-    fn get_comp_serializations<R: Read>(&mut self, network_id: u16) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>>;
+    fn get_comp_constructions<R: Read>(
+        &mut self,
+        network_id: u16,
+        lot: Lot,
+        config: &Option<LuNameValue>,
+    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>>;
+    fn get_comp_serializations<R: Read>(
+        &mut self,
+        network_id: u16,
+    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>>;
 }
 
 #[derive(Debug, PartialEq, ReplicaSerde)]
@@ -253,7 +265,11 @@ impl<R: Read + ReplicaContext> Deserialize<LE, R> for ReplicaSerialization {
             components.push(new(&mut bit_reader)?);
         }
 
-        Ok(Self { network_id, parent_child_info, components })
+        Ok(Self {
+            network_id,
+            parent_child_info,
+            components,
+        })
     }
 }
 
@@ -287,11 +303,19 @@ impl Read for DummyContext<'_> {
 
 #[cfg(test)]
 impl ReplicaContext for DummyContext<'_> {
-    fn get_comp_constructions<R: Read>(&mut self, _network_id: u16, _lot: Lot, _config: &Option<LuNameValue>) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
+    fn get_comp_constructions<R: Read>(
+        &mut self,
+        _network_id: u16,
+        _lot: Lot,
+        _config: &Option<LuNameValue>,
+    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
         vec![]
     }
 
-    fn get_comp_serializations<R: Read>(&mut self, _network_id: u16) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>> {
+    fn get_comp_serializations<R: Read>(
+        &mut self,
+        _network_id: u16,
+    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>> {
         vec![]
     }
 }

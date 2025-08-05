@@ -54,7 +54,8 @@ macro_rules! abstract_lu_str {
 
         impl<W: Write> Serialize<LE, W> for &$name {
             fn serialize(self, writer: &mut W) -> Res<()> {
-                let x: [u8; $n * std::mem::size_of::<$c>()] = unsafe { std::mem::transmute(self.0) };
+                let x: [u8; $n * std::mem::size_of::<$c>()] =
+                    unsafe { std::mem::transmute(self.0) };
                 writer.write_all(&x)
             }
         }
@@ -112,7 +113,10 @@ macro_rules! lu_wstr {
 
         impl From<&$name> for String {
             fn from(wstr: &$name) -> Self {
-                String::from_utf16(unsafe { &*(&**wstr as *const [Ucs2Char] as *const [<Ucs2Char as LuChar>::Int]) }).unwrap()
+                String::from_utf16(unsafe {
+                    &*(&**wstr as *const [Ucs2Char] as *const [<Ucs2Char as LuChar>::Int])
+                })
+                .unwrap()
             }
         }
     };
