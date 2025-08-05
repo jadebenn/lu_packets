@@ -4,9 +4,9 @@ use endio::{Deserialize, LE, Serialize};
 use endio_bit::{BEBitReader, BEBitWriter};
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use crate::common::{LuVarWString, LVec, ObjId};
-use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization, ReplicaD};
 use super::scripted_activity::ActivityUserInfo;
+use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization, ReplicaD};
+use crate::common::{LVec, LuVarWString, ObjId};
 
 #[derive(Debug, PartialEq, ReplicaSerde)]
 pub struct PreRacePlayerInfo {

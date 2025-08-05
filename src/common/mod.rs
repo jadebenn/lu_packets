@@ -2,9 +2,9 @@
 mod str;
 
 use std::convert::{TryFrom, TryInto};
-use std::fmt::{Formatter, Debug};
-use std::io::{Read, Write};
+use std::fmt::{Debug, Formatter};
 use std::io::Result as Res;
+use std::io::{Read, Write};
 use std::marker::PhantomData;
 
 use endio::{Deserialize, LE, LERead, LEWrite, Serialize};

@@ -385,8 +385,8 @@ impl TryFrom<&str> for Amf3 {
 
 #[cfg(test)]
 mod tests {
-    use endio::{LERead, LEWrite};
     use super::U29;
+    use endio::{LERead, LEWrite};
 
     #[test]
     fn test_u29() {

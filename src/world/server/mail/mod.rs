@@ -1,7 +1,7 @@
 use endio::{Deserialize, Serialize};
 use lu_packets_derive::VariantTests;
 
-use crate::common::{LuWString32, LuWString400, LuWString50, ObjId};
+use crate::common::{LuWString32, LuWString50, LuWString400, ObjId};
 
 #[derive(Debug, Deserialize, PartialEq, Serialize, VariantTests)]
 #[repr(u32)]

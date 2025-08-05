@@ -4,8 +4,8 @@ use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
 use endio_bit::{BEBitReader, BEBitWriter};
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use crate::common::{LuVarWString, ObjId};
 use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
+use crate::common::{LuVarWString, ObjId};
 
 #[derive(Debug, PartialEq)]
 pub enum TransitionState {

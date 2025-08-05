@@ -4,8 +4,8 @@ use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
 use endio_bit::{BEBitReader, BEBitWriter};
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use crate::common::LVec;
 use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
+use crate::common::LVec;
 
 #[derive(Debug, Deserialize, PartialEq, Serialize)]
 pub struct StatusImmunityInfo {

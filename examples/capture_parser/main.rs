@@ -2,17 +2,17 @@ mod zip_context;
 
 use std::collections::HashMap;
 use std::env;
-use std::io::{BufReader, Result as Res};
 use std::fs;
 use std::fs::File;
+use std::io::{BufReader, Result as Res};
 use std::path::Path;
 use std::time::Instant;
 
-use lu_packets::world::Lot;
-use lu_packets::unified::Message;
-use rusqlite::{params, Connection};
-use zip::ZipArchive;
 use self::zip_context::ZipContext;
+use lu_packets::unified::Message;
+use lu_packets::world::Lot;
+use rusqlite::{Connection, params};
+use zip::ZipArchive;
 
 static mut PRINT_PACKETS: bool = false;
 
