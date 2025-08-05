@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, io::BufReader, fs::File};
 use std::io::Result as Res;
 
 use endio_bit::BEBitReader;
@@ -59,7 +59,7 @@ const COMP_ORDER: [u32; 35] = [
 ];
 
 pub struct ZipContext<'a> {
-    pub zip: ZipFile<'a>,
+    pub zip: ZipFile<'a, BufReader<File>>,
     pub comps: &'a mut HashMap<u16, Vec<u32>>,
     pub cdclient: &'a mut Cdclient,
     pub assert_fully_read: bool,
