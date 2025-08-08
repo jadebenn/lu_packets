@@ -1,17 +1,18 @@
 //! Client-received world messages.
-use std::io::{Error, ErrorKind::InvalidData, Read, Write};
-use std::io::Result as Res;
+use std::{
+	io::{Error, ErrorKind::InvalidData, Read, Result as Res, Write},
+	ptr,
+};
 
-use endio::{Deserialize, LERead, LEWrite, Serialize};
-use endio::LittleEndian as LE;
+use endio::{Deserialize, LERead, LEWrite, LittleEndian as LE, Serialize};
 use lu_packets_derive::{MessageFromVariants, VariantTests};
 
-use crate::chat::ChatChannel;
-use crate::chat::client::ChatMessage;
-use crate::common::{ObjId, LuString33, LuWString33, LuWString42, LVec, ServiceId};
-use crate::general::client::{DisconnectNotify, Handshake, GeneralMessage};
-use super::{Lot, lnv::LuNameValue, Vector3, ZoneId};
-use super::gm::client::SubjectGameMessage;
+use super::{Lot, Vector3, ZoneId, gm::client::SubjectGameMessage, lnv::LuNameValue};
+use crate::{
+	chat::{ChatChannel, client::ChatMessage},
+	common::{LVec, LuString33, LuWString33, LuWString42, ObjId, ServiceId},
+	general::client::{DisconnectNotify, GeneralMessage, Handshake},
+};
 
 /// All messages that can be received by a client from a world server.
 pub type Message = crate::raknet::client::Message<LuMessage>;
@@ -378,9 +379,12 @@ impl<R: Read> Deserialize<LE, R> for AddFriendResponse {
 	}
 }
 
-impl<'a, W: Write> Serialize<LE, W> for &'a AddFriendResponse {
+impl<W: Write> Serialize<LE, W> for &AddFriendResponse {
 	fn serialize(self, writer: &mut W) -> Res<()> {
-		let disc = unsafe { *(&self.response_type as *const AddFriendResponseType as *const u8) };
+		// SAFETY: Because `AddFriendResponseType` is marked `repr(u8)`, its layout is a `repr(C)` `union`
+		// between `repr(C)` structs, each of which has the `u8` discriminant as its first
+		// field, so we can read the discriminant without offsetting the pointer.
+		let disc = unsafe { *ptr::from_ref(self).cast::<u8>() };
 		LEWrite::write(writer, disc)?;
 		let mut is_online_x = &false;
 		let mut sender_id_x = &0;

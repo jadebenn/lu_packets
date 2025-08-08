@@ -1,14 +1,17 @@
 //! Client-received auth messages.
-use std::io::{Error, ErrorKind::InvalidData, Result as Res, Read};
+use std::{
+	io::{Error, ErrorKind::InvalidData, Read, Result as Res},
+	ptr,
+};
 
-use endio::{LEWrite, LERead, Deserialize, Serialize};
-use endio::LittleEndian as LE;
-use lu_packets_derive::MessageFromVariants;
-use lu_packets_derive::VariantTests;
+use endio::{Deserialize, LERead, LEWrite, LittleEndian as LE, Serialize};
+use lu_packets_derive::{MessageFromVariants, VariantTests};
 
-use crate::common::{LuString3, LuString33, LuString37, LuVarWString, LuWString33, ServiceId};
-use crate::general::client::{DisconnectNotify, Handshake, GeneralMessage};
-use crate::world::server::Language;
+use crate::{
+	common::{LuString3, LuString33, LuString37, LuVarWString, LuWString33, ServiceId},
+	general::client::{DisconnectNotify, GeneralMessage, Handshake},
+	world::server::Language,
+};
 
 /// All messages that can be received by a client from an auth server.
 pub type Message = crate::raknet::client::Message<LuMessage>;
@@ -128,7 +131,10 @@ where
 	&'a LuVarWString<u16>: Serialize<LE, W>,
 {
 	fn serialize(self, writer: &mut W) -> Res<()> {
-		let disc = unsafe { *(self as *const LoginResponse as *const u8) };
+		// SAFETY: Because `LoginResponse` is marked `repr(u8)`, its layout is a `repr(C)` `union`
+		// between `repr(C)` structs, each of which has the `u8` discriminant as its first
+		// field, so we can read the discriminant without offsetting the pointer.
+		let disc = unsafe { *ptr::from_ref(self).cast::<u8>() };
 		writer.write(disc)?;
 		match self {
 			LoginResponse::Ok { events, version, session_key, redirect_address, chat_server_address, cdn_key, cdn_ticket, language, country_code, just_upgraded_from_ftp, is_ftp, time_remaining_in_ftp, stamps } => {
