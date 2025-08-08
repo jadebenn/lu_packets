@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["lu_packets",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"lu_packets/world/amf3/struct.Amf3Array.html\" title=\"struct lu_packets::world::amf3::Amf3Array\">Amf3Array</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"lu_packets/world/struct.LuNameValue.html\" title=\"struct lu_packets::world::LuNameValue\">LuNameValue</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"lu_packets/world/struct.Quaternion.html\" title=\"struct lu_packets::world::Quaternion\">Quaternion</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"lu_packets/world/struct.Vector3.html\" title=\"struct lu_packets::world::Vector3\">Vector3</a>"],["impl&lt;L, T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"lu_packets/common/struct.LVec.html\" title=\"struct lu_packets::common::LVec\">LVec</a>&lt;L, T&gt;"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1471]}

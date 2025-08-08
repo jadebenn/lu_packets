@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Language","LuMessage","RouteMessage","UgcResType","WorldMessage"],"mod":["mail"],"struct":["CharacterCreateRequest","CharacterDeleteRequest","CharacterLoginRequest","ClientValidation","GeneralChatMessage","LevelLoadComplete","PositionUpdate","StringCheck","Top5IssuesRequest","UgcDownloadFailed"],"type":["Message"]};

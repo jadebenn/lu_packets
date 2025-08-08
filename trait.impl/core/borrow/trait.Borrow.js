@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["lu_packets",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/borrow/trait.Borrow.html\" title=\"trait core::borrow::Borrow\">Borrow</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/nightly/std/primitive.str.html\">str</a>&gt; for <a class=\"struct\" href=\"lu_packets/world/amf3/struct.Amf3String.html\" title=\"struct lu_packets::world::amf3::Amf3String\">Amf3String</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[415]}

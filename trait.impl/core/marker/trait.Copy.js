@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["lu_packets",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"lu_packets/chat/enum.ChatChannel.html\" title=\"enum lu_packets::chat::ChatChannel\">ChatChannel</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"lu_packets/common/struct.AsciiChar.html\" title=\"struct lu_packets::common::AsciiChar\">AsciiChar</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"lu_packets/common/struct.Ucs2Char.html\" title=\"struct lu_packets::common::Ucs2Char\">Ucs2Char</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"lu_packets/world/client/struct.ModerationSpan.html\" title=\"struct lu_packets::world::client::ModerationSpan\">ModerationSpan</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"lu_packets/world/struct.Quaternion.html\" title=\"struct lu_packets::world::Quaternion\">Quaternion</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"struct\" href=\"lu_packets/world/struct.Vector3.html\" title=\"struct lu_packets::world::Vector3\">Vector3</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1692]}
