@@ -1,14 +1,15 @@
 //! Client-received auth messages.
 use std::io::{Error, ErrorKind::InvalidData, Read, Result as Res};
 
-use endio::LittleEndian as LE;
-use endio::{Deserialize, LERead, LEWrite, Serialize};
-use lu_packets_derive::MessageFromVariants;
-use lu_packets_derive::VariantTests;
+use endio::{Deserialize, LERead, LEWrite, LittleEndian as LE, Serialize};
+use enum_discriminant::IntoDiscriminant;
+use lu_packets_derive::{MessageFromVariants, VariantTests};
 
-use crate::common::{LuString3, LuString33, LuString37, LuVarWString, LuWString33, ServiceId};
-use crate::general::client::{DisconnectNotify, GeneralMessage, Handshake};
-use crate::world::server::Language;
+use crate::{
+    common::{LuString3, LuString33, LuString37, LuVarWString, LuWString33, ServiceId},
+    general::client::{DisconnectNotify, GeneralMessage, Handshake},
+    world::server::Language,
+};
 
 /// All messages that can be received by a client from an auth server.
 pub type Message = crate::raknet::client::Message<LuMessage>;
@@ -66,7 +67,7 @@ pub enum ClientMessage {
     ### Notes
     Expect the connection to be closed soon after this message is received, if you're not closing it yourself already.
 */
-#[derive(Debug, PartialEq)]
+#[derive(Debug, IntoDiscriminant, PartialEq)]
 #[non_exhaustive]
 #[repr(u8)]
 pub enum LoginResponse {
@@ -137,7 +138,7 @@ where
     &'a LuVarWString<u16>: Serialize<LE, W>,
 {
     fn serialize(self, writer: &mut W) -> Res<()> {
-        let disc = unsafe { *std::ptr::from_ref::<LoginResponse>(self).cast::<u8>() };
+        let disc = self.discriminant();
         writer.write(disc)?;
         match self {
             LoginResponse::Ok {

@@ -177,6 +177,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum_discriminant"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39f1eac3744b83bc5c720e783ebee7adf57f51792529d54de206b1eac61dc4b7"
+dependencies = [
+ "enum_discriminant_macros",
+ "enum_discriminant_traits",
+]
+
+[[package]]
+name = "enum_discriminant_macros"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a41103f2cc2d97423db35d8c0bf8e2e0f5890da6631d58d909fdd3cce4071eb0"
+dependencies = [
+ "enum_discriminant_traits",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.104",
+]
+
+[[package]]
+name = "enum_discriminant_traits"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05b39280246924164047c5bba0435db29e40eb50151ef39f1e75eb3de046affd"
+
+[[package]]
 name = "fallible-iterator"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -294,6 +322,7 @@ version = "0.2.0"
 dependencies = [
  "endio",
  "endio_bit",
+ "enum_discriminant",
  "flate2",
  "libsqlite3-sys",
  "lu_packets_derive",

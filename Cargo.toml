@@ -11,6 +11,7 @@ endio = { git = "https://github.com/jadebenn/endio" }
 endio_bit = { git = "https://github.com/jadebenn/endio_bit" }
 lu_packets_derive = { path = "lu_packets_derive" }
 flate2 = { version = "1.1.2", features = ["zlib"], default-features = false }
+enum_discriminant = "1.0.1"
 
 [dev-dependencies]
 libsqlite3-sys = { version = "0.35.0", features = ["bundled"] }

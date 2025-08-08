@@ -1,17 +1,16 @@
 //! Client-received world messages.
-use std::io::Result as Res;
-use std::io::{Error, ErrorKind::InvalidData, Read, Write};
+use std::io::{Error, ErrorKind::InvalidData, Read, Result as Res, Write};
 
-use endio::LittleEndian as LE;
-use endio::{Deserialize, LERead, LEWrite, Serialize};
+use endio::{Deserialize, LERead, LEWrite, LittleEndian as LE, Serialize};
+use enum_discriminant::IntoDiscriminant;
 use lu_packets_derive::{MessageFromVariants, VariantTests};
 
-use super::gm::client::SubjectGameMessage;
-use super::{Lot, Vector3, ZoneId, lnv::LuNameValue};
-use crate::chat::ChatChannel;
-use crate::chat::client::ChatMessage;
-use crate::common::{LVec, LuString33, LuWString33, LuWString42, ObjId, ServiceId};
-use crate::general::client::{DisconnectNotify, GeneralMessage, Handshake};
+use super::{Lot, Vector3, ZoneId, gm::client::SubjectGameMessage, lnv::LuNameValue};
+use crate::{
+    chat::{ChatChannel, client::ChatMessage},
+    common::{LVec, LuString33, LuWString33, LuWString42, ObjId, ServiceId},
+    general::client::{DisconnectNotify, GeneralMessage, Handshake},
+};
 
 /// All messages that can be received by a client from a world server.
 pub type Message = crate::raknet::client::Message<LuMessage>;
@@ -326,7 +325,7 @@ pub struct AddFriendRequest {
     pub is_best_friend_request: bool,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, IntoDiscriminant, PartialEq)]
 #[repr(u8)]
 pub enum AddFriendResponseType {
     Accepted {
@@ -393,7 +392,7 @@ impl<R: Read> Deserialize<LE, R> for AddFriendResponse {
 
 impl<W: Write> Serialize<LE, W> for &AddFriendResponse {
     fn serialize(self, writer: &mut W) -> Res<()> {
-        let disc = unsafe { *(&raw const self.response_type).cast::<u8>() };
+        let disc = self.response_type.discriminant();
         LEWrite::write(writer, disc)?;
         let mut is_online_x = &false;
         let mut sender_id_x = &0;
