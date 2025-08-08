@@ -5,7 +5,7 @@ use endio_bit::BEBitReader;
 use lu_packets::{
     lu,
     raknet::client::replica::{
-        ComponentConstruction, ComponentSerialization, ReplicaContext,
+        CompConstructionFn, CompSerializationFn, ComponentSerialization, ReplicaContext,
         achievement_vendor::{AchievementVendorConstruction, AchievementVendorSerialization},
         base_combat_ai::{BaseCombatAiConstruction, BaseCombatAiSerialization},
         bbb::{BbbConstruction, BbbSerialization},
@@ -66,31 +66,27 @@ pub struct ZipContext<'a> {
 }
 
 impl ZipContext<'_> {
-    fn apply_whitelist(comps: &mut Vec<u32>, config: &Option<LuNameValue>) {
-        if let Some(conf) = config {
-            if let Some(LnvValue::I32(1)) = conf.get(&lu!("componentWhitelist")) {
-                comps.retain(|&x| match x {
-                    1 | 2 | 3 | 7 | 10 | 11 | 24 | 42 => true,
-                    _ => false,
-                });
-            }
+    fn apply_whitelist(comps: &mut Vec<u32>, config: Option<&LuNameValue>) {
+        if let Some(conf) = config
+            && let Some(LnvValue::I32(1)) = conf.get(&lu!("componentWhitelist"))
+        {
+            comps.retain(|&x| matches!(x, 1 | 2 | 3 | 7 | 10 | 11 | 24 | 42));
         }
     }
 
-    fn apply_config_overrides(comps: &mut Vec<u32>, config: &Option<LuNameValue>) {
+    fn apply_config_overrides(comps: &mut Vec<u32>, config: Option<&LuNameValue>) {
         if comps.contains(&42) {
-            if let Some(conf) = config {
-                if conf.contains_key(&lu!("modelBehaviors")) {
-                    if let Some(LnvValue::I32(m_type)) = conf.get(&lu!("modelType")) {
-                        let new_phys = if *m_type == 0 { 1 } else { 3 };
-                        if let Some(phys_index) = comps.iter().position(|&x| x == 1 || x == 3) {
-                            comps[phys_index] = new_phys;
-                        } else {
-                            comps.push(new_phys);
-                        }
-                        return;
-                    }
+            if let Some(conf) = config
+                && conf.contains_key(&lu!("modelBehaviors"))
+                && let Some(LnvValue::I32(m_type)) = conf.get(&lu!("modelType"))
+            {
+                let new_phys = if *m_type == 0 { 1 } else { 3 };
+                if let Some(phys_index) = comps.iter().position(|&x| x == 1 || x == 3) {
+                    comps[phys_index] = new_phys;
+                } else {
+                    comps.push(new_phys);
                 }
+                return;
             }
             if !comps.iter().any(|&x| x == 1 || x == 3) {
                 comps.push(3);
@@ -129,11 +125,11 @@ impl ZipContext<'_> {
         }
     }
 
-	#[rustfmt::skip]
-    fn map_constrs<R: std::io::Read>(comps: &Vec<u32>) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
-		use endio::Deserialize;
+    #[rustfmt::skip]
+    fn map_constrs<R: std::io::Read>(comps: &Vec<u32>) -> Vec<CompConstructionFn<R>> {
+        use endio::Deserialize;
 
-		let mut constrs: Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> = vec![];
+		let mut constrs: Vec<CompConstructionFn<R>> = vec![];
 		for comp in comps {
 			match comp {
 				1  =>  { constrs.push(|x| Ok(Box::new(ControllablePhysicsConstruction::deserialize(x)?))); }
@@ -190,8 +186,8 @@ impl ReplicaContext for ZipContext<'_> {
         &mut self,
         network_id: u16,
         lot: Lot,
-        config: &Option<LuNameValue>,
-    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
+        config: Option<&LuNameValue>,
+    ) -> Vec<CompConstructionFn<R>> {
         let mut comps = self.cdclient.get_comps(lot).clone();
 
         Self::apply_whitelist(&mut comps, config);
@@ -212,7 +208,7 @@ impl ReplicaContext for ZipContext<'_> {
 		use endio::Deserialize;
 
 		if let Some(comps) = self.comps.get(&network_id) {
-			let mut sers: Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>> = vec![];
+			let mut sers: Vec<CompSerializationFn<R>> = vec![];
 			for comp in comps {
 				match comp {
 					1   => { sers.push(|x| Ok(Box::new(ControllablePhysicsSerialization::deserialize(x)?))); }

@@ -1,8 +1,7 @@
 pub mod client;
 pub mod server;
 
-use std::io::Result as Res;
-use std::io::{Read, Write};
+use std::io::{Read, Result as Res, Write};
 
 use endio::{Deserialize, LERead, LEWrite, Serialize};
 use lu_packets_derive::{GameMessage, GmParam};
@@ -45,17 +44,19 @@ gm_param!(GmString);
 gm_param!(GmWString);
 
 impl GmParam for Vec<u8> {
+    // todo[read_buf]: Rewrite this using `read_buf_exact()` when stabilized
     fn deserialize<R: Read>(reader: &mut R) -> Res<Self> {
         let str_len: u32 = LERead::read(reader)?;
-        let str_len = str_len as usize;
-        let mut vec = Vec::with_capacity(str_len);
-        unsafe {
-            vec.set_len(str_len);
-        }
-        Read::read(reader, &mut vec)?;
+        // We don't care about truncating `str_len` on < 32-bit architectures
+        let mut vec = Vec::with_capacity(str_len as usize);
+        reader.take(str_len.into()).read_to_end(&mut vec)?;
         Ok(vec)
     }
 
+    #[allow(
+        clippy::cast_possible_truncation,
+        reason = "Since u32 is the maximum size of str_len, truncation is desired"
+    )]
     fn serialize<W: Write>(&self, writer: &mut W) -> Res<()> {
         LEWrite::write(writer, self.len() as u32)?;
         Write::write_all(writer, self)
@@ -160,6 +161,10 @@ pub enum LootType {
     Relocate,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct RemoveItemFromInventory {
     #[default(false)]

@@ -544,6 +544,10 @@ pub struct EnterProperty1 {
     pub return_to_zone: bool,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct PropertyEntranceSync {
     pub include_null_address: bool,

@@ -27,6 +27,10 @@ pub struct SmashableInfo {
 }
 
 // so close to being able to do serialization automatically...if not for the irregularity with `smashable_info`...
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, PartialEq)]
 pub struct StatsInfo {
     pub cur_health: u32,
@@ -128,6 +132,10 @@ pub struct DestroyableConstruction {
     pub is_on_a_threat_list: Option<bool>,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, PartialEq, ReplicaSerde)]
 pub struct SerializationStatsInfo {
     pub cur_health: u32,

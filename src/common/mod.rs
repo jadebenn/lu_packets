@@ -46,11 +46,7 @@ impl<L, T> LVec<L, T> {
         L: TryInto<usize>,
         T: Deserialize<LE, R>,
     {
-        let len = if let Ok(x) = len.try_into() {
-            x
-        } else {
-            panic!()
-        };
+        let Ok(len) = len.try_into() else { panic!() };
         let mut vec = Vec::<T>::with_capacity(len);
         for _ in 0..len {
             vec.push(LERead::read(reader)?);
@@ -63,11 +59,7 @@ impl<L, T> LVec<L, T> {
         L: TryFrom<usize> + Serialize<LE, W>,
     {
         let len = self.0.len();
-        let l_len = if let Ok(x) = L::try_from(len) {
-            x
-        } else {
-            panic!()
-        };
+        let Ok(l_len) = L::try_from(len) else { panic!() };
         writer.write(l_len)
     }
 

@@ -1,5 +1,23 @@
 {
     "workbench.editor.customLabels.patterns": {
         "**/mod.rs": "${dirname}/mod.rs"
-    }
+    },
+    "rust-analyzer.files.exclude": [
+        "src/auth/client/tests",
+        "src/auth/server/tests",
+        "src/chat/client/tests",
+        "src/chat/server/tests",
+        "src/common/general/client/tests",
+        "src/common/general/server/tests",
+        "src/raknet/client/replica/tests",
+        "src/raknet/client/tests",
+        "src/raknet/server/tests",
+        "src/world/client/tests",
+        "src/world/gm/client/tests",
+        "src/world/gm/server/tests",
+        "src/world/server/mail/tests",
+        "src/world/server/tests",
+        "src/general/client/tests",
+        "src/general/server/tests"
+    ]
 }

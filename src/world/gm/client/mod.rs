@@ -192,6 +192,10 @@ pub enum GameMessage {
     MarkInventoryItemAsActive(MarkInventoryItemAsActive) = 1767,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct Teleport {
     #[default(true)]
@@ -362,6 +366,10 @@ pub struct Resurrect {
     pub rez_immediately: bool,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct SetStunned {
     #[default(OBJID_EMPTY)]
@@ -402,6 +410,10 @@ pub enum StunState {
     Pop,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct SetStunImmunity {
     #[default(OBJID_EMPTY)]
@@ -454,6 +466,10 @@ pub enum FailReason {
     BuildEnded,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct AddItemToInventoryClientSync {
     pub bound: bool,
@@ -761,6 +777,10 @@ pub struct ShowActivityCountdown {
     pub state_to_play_sound_on: i32, // todo: type
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct DisplayTooltip {
     #[default(false)]
@@ -978,6 +998,10 @@ pub struct PlatformResync {
     pub unexpected_rotation: Quaternion,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct PlayCinematic {
     #[default(true)]
@@ -1421,6 +1445,10 @@ pub struct RacingPlayerLoaded {
     pub vehicle_id: ObjId,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct SetStatusImmunity {
     pub state_change_type: ImmunityState,
@@ -1460,6 +1488,10 @@ pub struct SetRailMovement {
     pub rail_activator_obj_id: ObjId,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct StartRailMovement {
     #[default(true)]
@@ -1584,6 +1616,10 @@ pub struct TeamAddPlayer {
     pub zone_id: ZoneId,
 }
 
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, GameMessage, PartialEq)]
 pub struct TeamRemovePlayer {
     pub disband: bool,

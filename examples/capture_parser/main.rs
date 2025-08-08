@@ -56,6 +56,8 @@ fn visit_dirs(dir: &Path, cdclient: &mut Cdclient, level: usize) -> Res<usize> {
     Ok(packet_count)
 }
 
+// Is there a specific reason this used panics instead of result enums?
+#[allow(clippy::too_many_lines, reason = "I am NOT refactoring this")]
 fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
     use endio::LERead;
 
@@ -63,13 +65,13 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
         return Ok(0);
     }
 
-    let src = BufReader::new(File::open(path).unwrap());
-    let mut zip = ZipArchive::new(src).unwrap();
+    let src = BufReader::new(File::open(path)?);
+    let mut zip = ZipArchive::new(src)?;
     let mut comps = HashMap::new();
     let mut i = 0;
     let mut packet_count = 0;
     while i < zip.len() {
-        let mut file = zip.by_index(i).unwrap();
+        let mut file = zip.by_index(i)?;
         if file.name().contains("of") {
             i += 1;
             continue;
@@ -205,7 +207,7 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
             if ctx.assert_fully_read {
                 // assert fully read
                 let mut rest = vec![];
-                std::io::Read::read_to_end(&mut file, &mut rest).unwrap();
+                std::io::Read::read_to_end(&mut file, &mut rest)?;
                 assert_eq!(
                     rest,
                     vec![],
@@ -217,10 +219,8 @@ fn parse(path: &Path, cdclient: &mut Cdclient) -> Res<usize> {
             }
             i += 1;
             continue;
-        } else {
-            i += 1;
-            continue;
         }
+        i += 1;
     }
     Ok(packet_count)
 }

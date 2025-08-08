@@ -45,9 +45,13 @@ macro_rules! abstract_lu_str {
         }
 
         impl<R: Read> Deserialize<LE, R> for $name {
+            #[allow(
+                clippy::missing_transmute_annotations,
+                reason = "Explicit type annotation is useless in a macro"
+            )]
             fn deserialize(reader: &mut R) -> Res<Self> {
                 let mut bytes = [0u8; $n * std::mem::size_of::<$c>()];
-                reader.read(&mut bytes)?;
+                reader.read_exact(&mut bytes)?;
                 Ok(Self(unsafe { std::mem::transmute(bytes) }))
             }
         }
@@ -114,7 +118,7 @@ macro_rules! lu_wstr {
         impl From<&$name> for String {
             fn from(wstr: &$name) -> Self {
                 String::from_utf16(unsafe {
-                    &*(&**wstr as *const [Ucs2Char] as *const [<Ucs2Char as LuChar>::Int])
+                    &*(&raw const **wstr as *const [<Ucs2Char as LuChar>::Int])
                 })
                 .unwrap()
             }

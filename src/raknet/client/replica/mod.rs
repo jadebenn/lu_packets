@@ -106,9 +106,13 @@ pub trait ComponentConstruction: Debug {
     fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()>;
 }
 
+pub type CompConstructionFn<R> = fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>;
+
 pub trait ComponentSerialization: Debug {
     fn ser(&self, writer: &mut BEBitWriter<Vec<u8>>) -> Res<()>;
 }
+
+pub type CompSerializationFn<R> = fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>;
 
 pub trait ComponentProtocol {
     type Construction: ComponentConstruction;
@@ -120,12 +124,12 @@ pub trait ReplicaContext {
         &mut self,
         network_id: u16,
         lot: Lot,
-        config: &Option<LuNameValue>,
-    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>>;
+        config: Option<&LuNameValue>,
+    ) -> Vec<CompConstructionFn<R>>;
     fn get_comp_serializations<R: Read>(
         &mut self,
         network_id: u16,
-    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>>;
+    ) -> Vec<CompSerializationFn<R>>;
 }
 
 #[derive(Debug, PartialEq, ReplicaSerde)]
@@ -181,7 +185,7 @@ impl<R: Read + ReplicaContext> Deserialize<LE, R> for ReplicaConstruction {
 		let lot        = LERead::read(&mut bit_reader)?;
 		let name       = LERead::read(&mut bit_reader)?;
 		let time_since_created_on_server = LERead::read(&mut bit_reader)?;
-		let config = ReplicaD::deserialize(&mut bit_reader)?;
+		let config: Option<LuNameValue> = ReplicaD::deserialize(&mut bit_reader)?;
 		let is_trigger = bit_reader.read_bit()?;
 		let spawner_id        = ReplicaD::deserialize(&mut bit_reader)?;
 		let spawner_node_id   = ReplicaD::deserialize(&mut bit_reader)?;
@@ -190,7 +194,7 @@ impl<R: Read + ReplicaContext> Deserialize<LE, R> for ReplicaConstruction {
 		let gm_level          = ReplicaD::deserialize(&mut bit_reader)?;
 		let parent_child_info = ReplicaD::deserialize(&mut bit_reader)?;
 		let mut components = vec![];
-		for new in unsafe {bit_reader.get_mut_unchecked()}.get_comp_constructions(network_id, lot, &config) {
+		for new in unsafe {bit_reader.get_mut_unchecked()}.get_comp_constructions(network_id, lot, config.as_ref()) {
 			components.push(new(&mut bit_reader)?);
 		}
 
@@ -307,15 +311,15 @@ impl ReplicaContext for DummyContext<'_> {
         &mut self,
         _network_id: u16,
         _lot: Lot,
-        _config: &Option<LuNameValue>,
-    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentConstruction>>> {
+        _config: Option<&LuNameValue>,
+    ) -> Vec<CompConstructionFn<R>> {
         vec![]
     }
 
     fn get_comp_serializations<R: Read>(
         &mut self,
         _network_id: u16,
-    ) -> Vec<fn(&mut BEBitReader<R>) -> Res<Box<dyn ComponentSerialization>>> {
+    ) -> Vec<CompSerializationFn<R>> {
         vec![]
     }
 }

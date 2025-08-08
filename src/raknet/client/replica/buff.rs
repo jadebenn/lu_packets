@@ -8,6 +8,10 @@ use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization, Re
 use crate::common::{LVec, ObjId};
 
 // so close to being able to do serialization automatically...if not for the irregularity with `added_by_teammate`...
+#[allow(
+    clippy::struct_excessive_bools,
+    reason = "Can't alter a game message's structure"
+)]
 #[derive(Debug, PartialEq)]
 pub struct BuffInfo {
     pub buff_id: u32,

@@ -82,7 +82,7 @@ impl<W: Write> Serialize<LE, W> for &U29 {
         } else if v <= 0x3fff {
             LEWrite::write(writer, (v >> 7) as u8 | 0x80)?;
             LEWrite::write(writer, v as u8 & 0x7f)
-        } else if v <= 0x1fffff {
+        } else if v <= 0x001f_ffff {
             LEWrite::write(writer, (v >> 14) as u8 | 0x80)?;
             #[rustfmt::skip]
 			LEWrite::write(writer, (v >> 7 ) as u8 | 0x80)?;
@@ -140,9 +140,8 @@ impl<R: Read> Deserialize<LE, Amf3Reader<'_, R>> for Amf3String {
             let mut vec = vec![0u8; length as usize];
             Read::read_exact(reader, &mut vec)?;
 
-            let string = match String::from_utf8(vec) {
-                Ok(x) => x,
-                Err(_) => return Err(Error::new(InvalidData, "string is not valid utf8")),
+            let Ok(string) = String::from_utf8(vec) else {
+                return Err(Error::new(InvalidData, "string is not valid utf8"));
             };
             if !string.is_empty() {
                 reader.string_ref_table.push(Self(string.clone()));
@@ -420,9 +419,9 @@ mod tests {
             (&b"\x7f"[..], 0x7f),
             (&b"\xa2\x43"[..], 4419),
             (&b"\x88\x00"[..], 1024),
-            (&b"\xff\xff\x7e"[..], 0x1ffffe),
-            (&b"\x80\xc0\x80\x00"[..], 0x200000),
-            (&b"\xbf\xff\xff\xfe"[..], 0xffffffe),
+            (&b"\xff\xff\x7e"[..], 0x001f_fffe),
+            (&b"\x80\xc0\x80\x00"[..], 0x0020_0000),
+            (&b"\xbf\xff\xff\xfe"[..], 0x0fff_fffe),
         ] {
             let mut reader = &bytes[..];
             let val: U29 = reader.read().unwrap();
