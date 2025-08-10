@@ -5,9 +5,9 @@ use std::convert::{TryFrom, TryInto};
 use std::fmt::{Debug, Formatter};
 use std::io::Result as Res;
 use std::io::{Read, Write};
-use std::marker::PhantomData;
 
 use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
+use index_vec::{Index, IndexVec};
 
 pub use self::str::*;
 
@@ -17,28 +17,31 @@ pub use self::str::*;
     Note: the length type is not checked and the `Vec` still uses `usize` internally. Handle with care.
 */
 #[derive(Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct LVec<L, T>(Vec<T>, PhantomData<L>);
+pub struct LVec<L: Index, T>(IndexVec<L, T>);
 
-impl<L, T> Default for LVec<L, T> {
+impl<L: Index, T> Default for LVec<L, T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<L, T> LVec<L, T> {
+impl<L: Index, T> LVec<L, T> {
+    #[inline]
     #[must_use]
     pub fn new() -> Self {
-        Self(Vec::new(), PhantomData)
+        Self(IndexVec::new())
     }
 
+    #[inline]
     #[must_use]
-    pub fn with_capacity(capacity: usize) -> Self {
-        Self(Vec::with_capacity(capacity), PhantomData)
+    pub fn with_capacity(capacity: L) -> Self {
+        Self(IndexVec::with_capacity(capacity))
     }
 
     #[must_use]
     pub fn inner(&self) -> &Vec<T> {
-        &self.0
+        // self.to_vec()
+        todo!("Implement `to_vec`");
     }
 
     pub(crate) fn deser_content<R: Read>(reader: &mut R, len: L) -> Res<Self>
@@ -46,16 +49,11 @@ impl<L, T> LVec<L, T> {
         L: TryInto<usize>,
         T: Deserialize<LE, R>,
     {
-        let len = if let Ok(x) = len.try_into() {
-            x
-        } else {
-            panic!()
-        };
-        let mut vec = Vec::<T>::with_capacity(len);
-        for _ in 0..len {
+        let mut vec = IndexVec::<L, T>::with_capacity(len);
+        for _ in 0..len.try_into().unwrap() {
             vec.push(LERead::read(reader)?);
         }
-        Ok(Self(vec, PhantomData))
+        Ok(Self(vec))
     }
 
     pub(crate) fn ser_len<W: LEWrite>(&self, writer: &mut W) -> Res<()>
@@ -75,20 +73,20 @@ impl<L, T> LVec<L, T> {
     where
         for<'a> &'a T: Serialize<LE, W>,
     {
-        for e in &self.0 {
+        for e in self.0.as_ref() {
             LEWrite::write(writer, e)?;
         }
         Ok(())
     }
 }
 
-impl<L, T: Debug> Debug for LVec<L, T> {
+impl<L: Index, T: Debug> Debug for LVec<L, T> {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl<L, T, R: Read> Deserialize<LE, R> for LVec<L, T>
+impl<L: Index, T, R: Read> Deserialize<LE, R> for LVec<L, T>
 where
     L: TryInto<usize> + Deserialize<LE, R>,
     T: Deserialize<LE, R>,
@@ -99,7 +97,7 @@ where
     }
 }
 
-impl<L, T, W: Write> Serialize<LE, W> for &LVec<L, T>
+impl<L: Index, T, W: Write> Serialize<LE, W> for &LVec<L, T>
 where
     L: TryFrom<usize> + Serialize<LE, W>,
     for<'b> &'b T: Serialize<LE, W>,
@@ -110,8 +108,8 @@ where
     }
 }
 
-impl<L, T> std::ops::Deref for LVec<L, T> {
-    type Target = Vec<T>;
+impl<L: Index, T> std::ops::Deref for LVec<L, T> {
+    type Target = IndexVec<L, T>;
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -119,16 +117,16 @@ impl<L, T> std::ops::Deref for LVec<L, T> {
     }
 }
 
-impl<L, T> std::ops::DerefMut for LVec<L, T> {
+impl<L: Index, T> std::ops::DerefMut for LVec<L, T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl<L, T> From<Vec<T>> for LVec<L, T> {
-    fn from(vec: Vec<T>) -> Self {
-        Self(vec, PhantomData)
+impl<L: Index, T> From<IndexVec<L, T>> for LVec<L, T> {
+    fn from(vec: IndexVec<L, T>) -> Self {
+        Self(vec)
     }
 }
 

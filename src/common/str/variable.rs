@@ -1,6 +1,8 @@
 use std::convert::TryFrom;
 use std::marker::PhantomData;
 
+use index_vec::{Index, IndexVec};
+
 use super::{AsciiChar, AsciiError, LuStrExt, LuWStr, Ucs2Char, Ucs2Error};
 use crate::common::LVec;
 
