@@ -3,8 +3,7 @@ mod variable;
 
 use endio::{Deserialize, Serialize};
 
-pub use self::fixed::*;
-pub use self::variable::*;
+pub use self::{fixed::*, variable::*};
 
 pub trait LuChar {
 	type Int;

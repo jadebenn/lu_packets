@@ -1,15 +1,16 @@
 pub mod client;
 pub mod server;
 
-use std::io::{Read, Write};
-use std::io::Result as Res;
+use std::io::{Read, Result as Res, Write};
 
 use endio::{Deserialize, LERead, LEWrite, Serialize};
 use lu_packets_derive::{GameMessage, GmParam};
 
-use crate::common::{LuVarString, LuVarWString, ObjId, OBJID_EMPTY};
-use crate::world::{LuNameValue, MapId, MAP_ID_INVALID};
 use super::{Lot, LOT_NULL};
+use crate::{
+	common::{LuVarString, LuVarWString, ObjId, OBJID_EMPTY},
+	world::{LuNameValue, MapId, MAP_ID_INVALID},
+};
 
 type GmString = LuVarString<u32>;
 type GmWString = LuVarWString<u32>;

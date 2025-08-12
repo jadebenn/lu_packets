@@ -2,11 +2,9 @@
 pub mod client;
 pub mod server;
 
-use std::io::{Read, Write};
-use std::io::Result as Res;
+use std::io::{Read, Result as Res, Write};
 
-use endio::{Deserialize, LERead, LEWrite, Serialize};
-use endio::LittleEndian as LE;
+use endio::{Deserialize, LERead, LEWrite, LittleEndian as LE, Serialize};
 
 use crate::common::{LuVarWString, LuWString33, ObjId};
 

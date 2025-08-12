@@ -6,19 +6,19 @@ pub mod buff;
 pub mod character;
 pub mod collectible;
 pub mod controllable_physics;
-pub mod donation_vendor;
 pub mod destroyable;
+pub mod donation_vendor;
 pub mod fx;
 pub mod inventory;
 pub mod item;
 pub mod level_progression;
 pub mod lup_exhibit;
-pub mod mutable_model_behavior;
 pub mod module_assembly;
 pub mod moving_platform;
+pub mod mutable_model_behavior;
+pub mod pet;
 pub mod phantom_physics;
 pub mod player_forced_movement;
-pub mod pet;
 pub mod possessable;
 pub mod possession_control;
 pub mod quickbuild;
@@ -33,15 +33,19 @@ pub mod switch;
 pub mod vehicle_physics;
 pub mod vendor;
 
-use std::fmt::Debug;
-use std::io::{Read, Result as Res, Write};
+use std::{
+	fmt::Debug,
+	io::{Read, Result as Res, Write},
+};
 
-use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
+use endio::{Deserialize, LERead, LEWrite, Serialize, LE};
 use endio_bit::{BEBitReader, BEBitWriter};
 use lu_packets_derive::ReplicaSerde;
 
-use crate::common::{ObjId, LuVarWString, LVec};
-use crate::world::{Lot, LuNameValue};
+use crate::{
+	common::{LVec, LuVarWString, ObjId},
+	world::{Lot, LuNameValue},
+};
 
 trait ReplicaD<R: Read>: Sized {
 	fn deserialize(reader: &mut BEBitReader<R>) -> Res<Self>;

@@ -4,9 +4,11 @@ use endio::{Deserialize, Serialize};
 use endio_bit::BEBitWriter;
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use crate::common::ObjId;
-use crate::world::{Vector3, Quaternion};
 use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
+use crate::{
+	common::ObjId,
+	world::{Quaternion, Vector3},
+};
 
 #[derive(Debug, Deserialize, PartialEq, Serialize)]
 #[repr(i32)]

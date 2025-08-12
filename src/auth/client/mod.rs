@@ -1,14 +1,14 @@
 //! Client-received auth messages.
-use std::io::{Error, ErrorKind::InvalidData, Result as Res, Read};
+use std::io::{Error, ErrorKind::InvalidData, Read, Result as Res};
 
-use endio::{LEWrite, LERead, Deserialize, Serialize};
-use endio::LittleEndian as LE;
-use lu_packets_derive::MessageFromVariants;
-use lu_packets_derive::VariantTests;
+use endio::{Deserialize, LERead, LEWrite, LittleEndian as LE, Serialize};
+use lu_packets_derive::{MessageFromVariants, VariantTests};
 
-use crate::common::{LuString3, LuString33, LuString37, LuVarWString, LuWString33, ServiceId};
-use crate::general::client::{DisconnectNotify, Handshake, GeneralMessage};
-use crate::world::server::Language;
+use crate::{
+	common::{LuString3, LuString33, LuString37, LuVarWString, LuWString33, ServiceId},
+	general::client::{DisconnectNotify, GeneralMessage, Handshake},
+	world::server::Language,
+};
 
 /// All messages that can be received by a client from an auth server.
 pub type Message = crate::raknet::client::Message<LuMessage>;

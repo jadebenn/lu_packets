@@ -4,8 +4,7 @@ use endio::Serialize;
 use endio_bit::BEBitWriter;
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
-use super::vendor::VendorInfo;
+use super::{vendor::VendorInfo, ComponentConstruction, ComponentProtocol, ComponentSerialization};
 
 #[derive(BitVariantTests, Debug, PartialEq, ReplicaSerde)]
 pub struct AchievementVendorConstruction {

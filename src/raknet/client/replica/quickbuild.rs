@@ -4,11 +4,11 @@ use endio::Serialize;
 use endio_bit::BEBitWriter;
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use crate::common::LVec;
-use crate::world::Vector3;
-use crate::world::gm::client::RebuildChallengeState;
-use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
-use super::scripted_activity::ActivityUserInfo;
+use super::{scripted_activity::ActivityUserInfo, ComponentConstruction, ComponentProtocol, ComponentSerialization};
+use crate::{
+	common::LVec,
+	world::{gm::client::RebuildChallengeState, Vector3},
+};
 
 #[derive(Debug, PartialEq, ReplicaSerde)]
 pub struct QuickbuildConstructionInfo {

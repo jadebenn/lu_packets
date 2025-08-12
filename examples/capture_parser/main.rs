@@ -1,18 +1,18 @@
 mod zip_context;
 
-use std::collections::HashMap;
-use std::env;
-use std::io::{BufReader, Result as Res};
-use std::fs;
-use std::fs::File;
-use std::path::Path;
-use std::time::Instant;
+use std::{
+	collections::HashMap,
+	env, fs,
+	fs::File,
+	io::{BufReader, Result as Res},
+	path::Path,
+	time::Instant,
+};
 
-use lu_packets::world::Lot;
-use lu_packets::unified::Message;
+use self::zip_context::ZipContext;
+use lu_packets::{unified::Message, world::Lot};
 use rusqlite::{params, Connection};
 use zip::ZipArchive;
-use self::zip_context::ZipContext;
 
 static mut PRINT_PACKETS: bool = false;
 

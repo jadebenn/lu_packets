@@ -1,9 +1,7 @@
 //! Server-received raknet messages.
-use std::io::{Read, Write};
-use std::io::Result as Res;
+use std::io::{Read, Result as Res, Write};
 
-use endio::{Deserialize, Serialize};
-use endio::LittleEndian as LE;
+use endio::{Deserialize, LittleEndian as LE, Serialize};
 use lu_packets_derive::VariantTests;
 
 use super::SystemAddress;

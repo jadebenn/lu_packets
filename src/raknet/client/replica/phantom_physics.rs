@@ -1,12 +1,11 @@
-use std::io::{Result as Res};
+use std::io::Result as Res;
 
 use endio::{Deserialize, Serialize};
 use endio_bit::BEBitWriter;
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
+use super::{simple_physics::PositionRotationInfo, ComponentConstruction, ComponentProtocol, ComponentSerialization};
 use crate::world::Vector3;
-use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
-use super::simple_physics::PositionRotationInfo;
 
 #[derive(Debug, Deserialize, PartialEq, Serialize)]
 #[repr(u32)]

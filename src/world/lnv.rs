@@ -1,13 +1,14 @@
 //! LU name value datatype.
-use std::collections::HashMap;
-use std::convert::{TryFrom, TryInto};
-use std::io::{Read, Write};
-use std::io::Result as Res;
+use std::{
+	collections::HashMap,
+	convert::{TryFrom, TryInto},
+	io::{Read, Result as Res, Write},
+};
 
-use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
+use flate2::{read::ZlibDecoder, write::ZlibEncoder, Compression};
 
-use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
 use super::gm::GmParam;
+use endio::{Deserialize, LERead, LEWrite, Serialize, LE};
 
 use crate::common::{LuStrExt, LuVarString, LuVarWString, LuWStr};
 

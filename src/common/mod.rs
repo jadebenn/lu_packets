@@ -1,13 +1,14 @@
 //! Shared types.
 mod str;
 
-use std::convert::{TryFrom, TryInto};
-use std::fmt::{Formatter, Debug};
-use std::io::{Read, Write};
-use std::io::Result as Res;
-use std::marker::PhantomData;
+use std::{
+	convert::{TryFrom, TryInto},
+	fmt::{Debug, Formatter},
+	io::{Read, Result as Res, Write},
+	marker::PhantomData,
+};
 
-use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
+use endio::{Deserialize, LERead, LEWrite, Serialize, LE};
 
 pub use self::str::*;
 

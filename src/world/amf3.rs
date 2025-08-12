@@ -1,12 +1,14 @@
 //! (De-)serialization support for the [AMF3 format](https://wwwimages2.adobe.com/content/dam/acom/en/devnet/pdf/amf-file-format-spec.pdf).
-use std::borrow::Borrow;
-use std::collections::HashMap;
-use std::convert::{TryFrom, TryInto};
-use std::fmt::{Debug, Formatter, Result as FmtResult};
-use std::io::{Error, ErrorKind::InvalidData, Read, Result as Res, Write};
-use std::ops::{Index, IndexMut};
+use std::{
+	borrow::Borrow,
+	collections::HashMap,
+	convert::{TryFrom, TryInto},
+	fmt::{Debug, Formatter, Result as FmtResult},
+	io::{Error, ErrorKind::InvalidData, Read, Result as Res, Write},
+	ops::{Index, IndexMut},
+};
 
-use endio::{Deserialize, LE, LERead, LEWrite, Serialize};
+use endio::{Deserialize, LERead, LEWrite, Serialize, LE};
 use lu_packets_derive::GmParam;
 
 struct Amf3Reader<'a, R: Read> {
@@ -393,8 +395,8 @@ impl TryFrom<&str> for Amf3 {
 
 #[cfg(test)]
 mod tests {
-	use endio::{LERead, LEWrite};
 	use super::U29;
+	use endio::{LERead, LEWrite};
 
 	#[test]
 	fn test_u29() {

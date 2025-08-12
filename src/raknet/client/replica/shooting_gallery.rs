@@ -4,10 +4,11 @@ use endio::Serialize;
 use endio_bit::BEBitWriter;
 use lu_packets_derive::{BitVariantTests, ReplicaSerde};
 
-use crate::common::{LVec, ObjId};
-use crate::world::Vector3;
-use super::{ComponentConstruction, ComponentProtocol, ComponentSerialization};
-use super::scripted_activity::ActivityUserInfo;
+use super::{scripted_activity::ActivityUserInfo, ComponentConstruction, ComponentProtocol, ComponentSerialization};
+use crate::{
+	common::{LVec, ObjId},
+	world::Vector3,
+};
 
 #[derive(Debug, PartialEq, ReplicaSerde)]
 pub struct ShootingGalleryInfo {
