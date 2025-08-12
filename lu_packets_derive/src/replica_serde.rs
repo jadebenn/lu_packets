@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{
-    Attribute, Data, DataEnum, DeriveInput, Field, Fields, Generics, Lit, LitInt, Meta, NestedMeta,
+    Attribute, Data, DataEnum, DeriveInput, Field, Fields, Lit, LitInt, Meta, NestedMeta,
     parse_macro_input, parse_quote,
 };
 
@@ -21,14 +21,7 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             let post_disc_padding = get_post_disc_padding(&input);
             deser_code =
                 gen_deser_code_enum(data, name, &ty, &pre_disc_padding, &post_disc_padding);
-            ser_code = gen_ser_code_enum(
-                data,
-                name,
-                &ty,
-                &pre_disc_padding,
-                &post_disc_padding,
-                &input.generics,
-            );
+            ser_code = gen_ser_code_enum(data, name, &ty, &pre_disc_padding, &post_disc_padding);
         }
         Data::Union(_) => unimplemented!(),
     }
@@ -210,7 +203,6 @@ fn gen_ser_code_enum(
     ty: &Ident,
     pre_disc_padding: &Option<LitInt>,
     post_disc_padding: &Option<LitInt>,
-    generics: &Generics,
 ) -> TokenStream {
     let mut arms = vec![];
     for f in &data.variants {
@@ -223,7 +215,7 @@ fn gen_ser_code_enum(
     let write_post_padding = gen_write_padding(post_disc_padding);
     quote! {
         #write_pre_padding
-        let disc = unsafe { *(self as *const #name #generics as *const #ty) };
+        let disc = unsafe { *::std::ptr::from_ref(self).cast::<#ty>() };
         ::endio::LEWrite::write(writer, disc)?;
         #write_post_padding
         match self {
