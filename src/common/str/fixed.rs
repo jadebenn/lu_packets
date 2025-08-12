@@ -3,7 +3,6 @@ use std::io::Result as Res;
 use std::io::{Read, Write};
 
 use endio::{Deserialize, LE, Serialize};
-
 use super::{AbstractLuStr, AsciiChar, AsciiError, LuChar, LuStrExt, Ucs2Char, Ucs2Error};
 
 // todo[const generics]: const generic strings
@@ -83,7 +82,7 @@ macro_rules! lu_str {
                 for (i, chr) in string.iter().enumerate() {
                     bytes[i] = *chr;
                 }
-                let bytes = unsafe { std::mem::transmute(bytes) };
+                let bytes = unsafe { std::mem::transmute::<[u8; $n], [AsciiChar; $n]>(bytes) };
                 Ok(Self(bytes))
             }
         }
@@ -110,7 +109,7 @@ macro_rules! lu_wstr {
                 for (i, chr) in string.encode_utf16().take($n - 1).enumerate() {
                     bytes[i] = chr;
                 }
-                let bytes = unsafe { std::mem::transmute(bytes) };
+                let bytes = unsafe { std::mem::transmute::<[u16; $n], [Ucs2Char; $n]>(bytes) };
                 Ok(Self(bytes))
             }
         }

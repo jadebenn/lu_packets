@@ -61,9 +61,8 @@ impl<L> TryFrom<&str> for LuVarWString<L> {
     type Error = Ucs2Error;
 
     fn try_from(string: &str) -> Result<Self, Self::Error> {
-        let chars: Vec<u16> = string.encode_utf16().collect();
-        // todo: check for invalid character ranges for ucs 2
-        let chars = unsafe { std::mem::transmute(chars) };
+		// todo: check for invalid character ranges for ucs 2
+        let chars = string.encode_utf16().map(Ucs2Char).collect();
         Ok(Self(chars, PhantomData))
     }
 }
